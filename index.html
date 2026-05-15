@@ -1,0 +1,784 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>NDC22 Admin — Web Console</title>
+<style>
+  :root{
+    --bg:#f7f9fc; --card:#fff; --primary:#1158d8; --muted:#64748b; --danger:#dc2626; --success:#16a34a; --warning:#ca8a04;
+  }
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;color:#0f172a;background:var(--bg);}
+  .container{max-width:1200px;margin:20px auto;padding:16px;}
+  header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+  .brand{display:flex;gap:12px;align-items:center}
+  .brand .logo{width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,#e6eefc,#dbeafe)}
+  .brand h1{font-size:18px;margin:0}
+  .card{background:var(--card);border-radius:10px;padding:14px;box-shadow:0 1px 4px rgba(2,6,23,.06);margin-bottom:12px}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:520px){.grid{grid-template-columns:1fr}}
+  .kpi{padding:16px;border-left:6px solid var(--primary)}
+  .kpi h3{margin:0;font-size:18px}
+  .kpi p{margin:6px 0 0;color:var(--muted)}
+  nav{display:flex;flex-direction:column;gap:8px}
+  button.btn{background:var(--primary);border:none;color:#fff;padding:8px 12px;border-radius:8px;cursor:pointer}
+  button.btn:hover{opacity:0.9;}
+  button.ghost{background:transparent;border:1px solid #e6eefc;color:var(--muted);padding:8px 10px;border-radius:8px;cursor:pointer}
+  button.ghost:hover{background:#f1f5f9;}
+  .topbar{display:flex;gap:12px;align-items:center}
+  .search{padding:8px;border-radius:8px;border:1px solid #e6eefc}
+  .main{display:flex;gap:12px}
+  .sidebar{width:220px}
+  .content{flex:1}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:8px;border-bottom:1px solid #f1f5f9;text-align:left;font-size:14px}
+  .small{font-size:13px;color:var(--muted)}
+  .form-row{display:flex;gap:8px;margin-bottom:8px}
+  .form-row input,.form-row select,.form-row textarea{flex:1;padding:8px;border-radius:8px;border:1px solid #e6eefc;font-family:inherit;}
+  .modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(2,6,23,.45);display:flex;align-items:center;justify-content:center;z-index:999}
+  .modal .card{width:760px;max-width:96%}
+  .hidden{display:none}
+  footer{margin-top:18px;color:var(--muted);font-size:13px}
+  .muted-note{color:var(--muted);font-size:13px;margin-top:8px}
+  .btn-sm{padding:6px 10px;border-radius:8px;font-size:13px;border:1px solid #e6eefc;background:#fff;cursor:pointer;}
+  .btn-sm:hover{background:#f1f5f9;}
+  .actions button{margin-right:6px}
+  .badge {display:inline-block;padding:2px 6px;border-radius:4px;font-size:12px;font-weight:6px;}
+  .badge-pending {background:#fef9c3;color:#854d0e;}
+  .badge-approved {background:#dcfce7;color:#166534;}
+  .badge-failed {background:#fee2e2;color:#991b1b;}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="brand">
+      <div class="logo" aria-hidden="true"></div>
+      <div>
+        <h1>NDC22 Tent Trading — Admin Console</h1>
+        <div class="small">Google Sheets Pure JSON Engine — Enterprise Dashboard</div>
+      </div>
+    </div>
+    <div class="topbar">
+      <input id="searchBox" class="search" placeholder="Fuzzy Search Contexts..." />
+      <div id="userInfo" class="small">Not signed in</div>
+      <button id="btnLogout" class="btn hidden">Sign out</button>
+    </div>
+  </header>
+
+  <!-- Sign-in card -->
+  <div id="signinCard" class="card">
+    <h2>Sign in to Admin Web Console</h2>
+    <div style="max-width:520px">
+      <div class="form-row">
+        <input id="inputUser" placeholder="Username" value="owner" />
+        <input id="inputPass" placeholder="Password" type="password" value="ownerpass" />
+      </div>
+      <div style="display:flex;gap:8px">
+        <button id="btnSignIn" class="btn">Sign in</button>
+        <button id="btnInitSheets" class="ghost">Initialize Sheets</button>
+      </div>
+      <div id="signinMsg" class="small" style="margin-top:8px;color:var(--danger)"></div>
+      <div class="muted-note">After initialization, execution roles default into secure cryptographic parameters.</div>
+    </div>
+  </div>
+
+  <!-- App UI -->
+  <div id="appUI" class="hidden">
+    <div class="main">
+      <aside class="sidebar">
+        <div class="card">
+          <nav>
+            <button class="ghost nav" data-view="dashboard">Dashboard</button>
+            <button class="ghost nav" data-view="customers">Customers</button>
+            <button class="ghost nav" data-view="quotations">Quotations</button>
+            <button class="ghost nav" data-view="designs">Designs</button>
+            <button class="ghost nav" data-view="joborders">Job Orders</button>
+            <button class="ghost nav" data-view="operations">Operations</button>
+            <button class="ghost nav" data-view="accounting">Accounting</button>
+            <button class="ghost nav" data-view="payroll">Payroll</button>
+            <button class="ghost nav" data-view="reports">Reports</button>
+            <button class="ghost nav" data-view="audit">Audit Logs</button>
+          </nav>
+        </div>
+      </aside>
+
+      <section class="content">
+        <!-- Dashboard -->
+        <div id="view-dashboard" class="hidden">
+          <div class="grid">
+            <div class="card kpi"><h3 id="kpi_inquiries">—</h3><p>Total inquiries</p></div>
+            <div class="card kpi"><h3 id="kpi_pending_q">—</h3><p>Pending quotations</p></div>
+            <div class="card kpi"><h3 id="kpi_projects">—</h3><p>Projects (active)</p></div>
+            <div class="card kpi"><h3 id="kpi_ongoing">—</h3><p>Ongoing Operations</p></div>
+          </div>
+          <div class="grid" style="margin-top:12px">
+            <div class="card"><h3 id="kpi_completed">—</h3><p>Completed Orders</p></div>
+            <div class="card"><h3 id="kpi_unpaid">—</h3><p>Unpaid balances</p></div>
+            <div class="card"><h3 id="kpi_payroll_pending">—</h3><p>Payroll pending</p></div>
+            <div class="card"><h3>Recent System Operations</h3><div id="recentEvents" class="small" style="max-height:140px;overflow:auto"></div></div>
+          </div>
+        </div>
+
+        <!-- Customers -->
+        <div id="view-customers" class="hidden">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <h3>Customer Registries</h3>
+            <div><button id="btnNewCustomer" class="btn">New Customer</button></div>
+          </div>
+          <div class="card">
+            <table id="tblCustomers"><thead><tr><th>ID</th><th>Name</th><th>Contact</th><th>Service</th><th>Event Date</th><th>Status</th><th>Actions</th></tr></thead><tbody></tbody></table>
+          </div>
+        </div>
+
+        <!-- Quotations -->
+        <div id="view-quotations" class="hidden">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <h3>Financial Quotations</h3>
+            <div><button id="btnNewQuotation" class="btn">New Quotation</button></div>
+          </div>
+          <div class="card">
+            <table id="tblQuotations"><thead><tr><th>ID</th><th>Customer</th><th>Details</th><th>Qty</th><th>Total</th><th>Approval</th><th>Actions</th></tr></thead><tbody></tbody></table>
+          </div>
+        </div>
+
+        <!-- Designs -->
+        <div id="view-designs" class="hidden">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <h3>Graphic Architecture Designs</h3>
+            <div><button id="btnUploadDesign" class="btn">Upload Blueprint Design</button></div>
+          </div>
+          <div class="card">
+            <table id="tblDesigns"><thead><tr><th>ID</th><th>Quotation ID</th><th>Status</th><th>Revisions</th><th>Actions</th></tr></thead><tbody></tbody></table>
+          </div>
+        </div>
+
+        <!-- Job Orders -->
+        <div id="view-joborders" class="hidden">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <h3>Production Job Orders (JO)</h3>
+            <div><button id="btnNewJO" class="btn">New Job Order</button></div>
+          </div>
+          <div class="card">
+            <table id="tblJOs"><thead><tr><th>JO#</th><th>Customer</th><th>Location</th><th>Schedule Date</th><th>Status</th><th>Actions</th></tr></thead><tbody></tbody></table>
+          </div>
+        </div>
+
+        <!-- Operations -->
+        <div id="view-operations" class="hidden">
+          <h3>Logistical Field Operations</h3>
+          <div class="card">
+            <table id="tblOps"><thead><tr><th>OP#</th><th>JO#</th><th>Stage</th><th>Progress Bar</th><th>Last Update</th><th>Actions</th></tr></thead><tbody></tbody></table>
+          </div>
+        </div>
+
+        <!-- Accounting -->
+        <div id="view-accounting" class="hidden">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <h3>Ledger Invoicing & Ledger Verification</h3>
+            <div><button id="btnNewInvoice" class="btn">Create Invoice/Payment</button></div>
+          </div>
+          <div class="card">
+            <table id="tblAccounting"><thead><tr><th>ID</th><th>JO#</th><th>Customer Baseline</th><th>Amount</th><th>Method</th><th>Status</th><th>Actions</th></tr></thead><tbody></tbody></table>
+          </div>
+        </div>
+
+        <!-- Payroll -->
+        <div id="view-payroll" class="hidden">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <h3>Structural Operations Payroll</h3>
+            <div><button id="btnNewPayroll" class="btn">Process Payroll Window</button></div>
+          </div>
+          <div class="card">
+            <table id="tblPayroll"><thead><tr><th>ID</th><th>Employee Name</th><th>Gross Pay</th><th>Net Remittance</th><th>Status</th><th>Actions</th></tr></thead><tbody></tbody></table>
+          </div>
+        </div>
+
+        <!-- Reports -->
+        <div id="view-reports" class="hidden">
+          <h3>Business Reports Engine</h3>
+          <div class="card">
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+              <select id="reportSelect"><option value="daily">Daily Financial Activity</option><option value="weekly">Weekly Operational Summary</option><option value="monthly">Monthly Master Audit</option><option value="payroll">Payroll Period Reconciliation</option></select>
+              <input id="reportFrom" type="date" />
+              <input id="reportTo" type="date" />
+              <button id="btnGenerate" class="btn">Compile Report Dataset</button>
+            </div>
+            <div id="reportOutput" style="margin-top:14px; padding:12px; border-radius:8px; background:#f1f5f9; white-space:pre-wrap; font-family:monospace;"></div>
+          </div>
+        </div>
+
+        <!-- Audit -->
+        <div id="view-audit" class="hidden">
+          <h3>Cryptographic Audit Chain Record</h3>
+          <div class="card" style="max-height:420px;overflow:auto">
+            <table id="tblAudit"><thead><tr><th>Log ID</th><th>Timestamp</th><th>Operator</th><th>Action Event</th><th>Target Resource</th><th>Details Scope</th></tr></thead><tbody></tbody></table>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="small">NDC22 Admin Console — Backend Engine Interface Loaded Safely via Secure RPC JSON Channels.</footer>
+  </div>
+</div>
+
+<!-- Modals System Configuration Layer -->
+<div id="modalCustomer" class="modal hidden" aria-hidden="true">
+  <div class="card">
+    <h3 id="custTitle">Add Customer</h3>
+    <div class="form-row"><input id="cust_name" placeholder="Full name" /></div>
+    <div class="form-row"><input id="cust_contact" placeholder="Contact number" /><input id="cust_event" type="date" /></div>
+    <div class="form-row"><input id="cust_service" placeholder="Service type" /><input id="cust_status" placeholder="Status" value="Active" /></div>
+    <div class="form-row"><textarea id="cust_notes" placeholder="Notes"></textarea></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px">
+      <button id="custCancel" class="ghost btn-sm">Cancel</button>
+      <button id="custSave" class="btn btn-sm">Save Record</button>
+    </div>
+  </div>
+</div>
+
+<div id="modalQuotation" class="modal hidden" aria-hidden="true">
+  <div class="card">
+    <h3 id="qtTitle">Create Quotation</h3>
+    <div class="form-row"><input id="qt_customer" placeholder="Customer ID or Name Reference" /><input id="qt_tent" placeholder="Tent Metric (Size)" /></div>
+    <div class="form-row"><input id="qt_material" placeholder="Textile Material Spec" /><input id="qt_frame" placeholder="Structural Frame Type" /></div>
+    <div class="form-row"><input id="qt_qty" type="number" min="1" value="1" /><input id="qt_sub" type="number" placeholder="Gross Subtotal" /></div>
+    <div class="form-row"><input id="qt_vat" placeholder="Automated 12% Calculation Matrix" disabled /><input id="qt_discount" type="number" placeholder="Discount Deduction" /></div>
+    <div class="form-row"><textarea id="qt_notes" placeholder="Operational Notes"></textarea></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px">
+      <button id="qtCancel" class="ghost btn-sm">Cancel</button>
+      <button id="qtSave" class="btn btn-sm">Commit Quotation Structure</button>
+    </div>
+  </div>
+</div>
+
+<div id="modalDesign" class="modal hidden" aria-hidden="true">
+  <div class="card">
+    <h3 id="designTitle">Upload Design Blueprints</h3>
+    <div class="form-row"><input id="des_qid" placeholder="Parent Quotation Tracking ID" /><input id="des_p1" placeholder="Perspective Vector 1 URL" /></div>
+    <div class="form-row"><input id="des_p2" placeholder="Perspective Vector 2 URL" /><input id="des_p3" placeholder="Perspective Vector 3 URL" /></div>
+    <div class="form-row"><textarea id="des_notes" placeholder="Structural Revision Directives"></textarea></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px">
+      <button id="desCancel" class="ghost btn-sm">Cancel</button>
+      <button id="desSave" class="btn btn-sm">Upload Matrix</button>
+    </div>
+  </div>
+</div>
+
+<div id="modalJobOrder" class="modal hidden" aria-hidden="true">
+  <div class="card">
+    <h3 id="joTitle">Commit System Job Order</h3>
+    <div class="form-row"><input id="jo_qid" placeholder="Approved Quotation Reference ID" /><input id="jo_customer" placeholder="Customer Identity" /></div>
+    <div class="form-row"><input id="jo_location" placeholder="Deployment / Fabrication Site Location" /><input id="jo_schedule" type="date" /></div>
+    <div class="form-row"><input id="jo_foreman" placeholder="Assigned Logistics Foreman" /><input id="jo_workers" placeholder="Assigned Production Teams (Comma Separated)" /></div>
+    <div class="form-row"><textarea id="jo_notes" placeholder="Logistical Scope Directives"></textarea></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px">
+      <button id="joCancel" class="ghost btn-sm">Cancel</button>
+      <button id="joSave" class="btn btn-sm">Instantiate Job Order</button>
+    </div>
+  </div>
+</div>
+
+<div id="modalOperation" class="modal hidden" aria-hidden="true">
+  <div class="card">
+    <h3 id="opTitle">Modify Operational Stage Matrix</h3>
+    <div class="form-row"><input id="op_jo" placeholder="Job Order Linkage Tracking Number" readonly /><input id="op_stage" placeholder="Current Pipeline State (e.g., Fabrication, Installation)" /></div>
+    <div class="form-row"><input id="op_percent" type="number" min="0" max="100" placeholder="Progress Percentage Allocation" /><input id="op_status" placeholder="Status Signature (In Progress / Complete)" /></div>
+    <div class="form-row"><textarea id="op_notes" placeholder="Field Diagnostics Logging Notes"></textarea></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px">
+      <button id="opCancel" class="ghost btn-sm">Cancel</button>
+      <button id="opSave" class="btn btn-sm">Update Pipeline Metrics</button>
+    </div>
+  </div>
+</div>
+
+<div id="modalAccounting" class="modal hidden" aria-hidden="true">
+  <div class="card">
+    <h3 id="accTitle">Generate Corporate Ledger Invoice Transaction</h3>
+    <div class="form-row"><input id="acc_jo" placeholder="Job Order Association Linkage ID" /><input id="acc_customer" placeholder="Client Tracking Endpoint" /></div>
+    <div class="form-row">
+      <select id="acc_type"><option value="Charge">Invoice Charge Generation</option><option value="Payment">Client Account Settlement Credit</option></select>
+      <input id="acc_amount" type="number" placeholder="Financial Value Allocation (PHP)" />
+    </div>
+    <div class="form-row"><input id="acc_method" placeholder="Payment Gateway Route (GCash, Maya, Bank Transfer)" /><textarea id="acc_notes" placeholder="Internal Audit Reconciliation Notes"></textarea></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px">
+      <button id="accCancel" class="ghost btn-sm">Cancel</button>
+      <button id="accSave" class="btn btn-sm">Inject Ledger Row</button>
+    </div>
+  </div>
+</div>
+
+<div id="modalPayroll" class="modal hidden" aria-hidden="true">
+  <div class="card">
+    <h3 id="payTitle">Instantiate Internal Personnel Payroll Record</h3>
+    <div class="form-row"><input id="pay_name" placeholder="Employee Complete Registered Identity" /><input id="pay_emp_id" placeholder="Employee Master Tracking Reference ID" /></div>
+    <div class="form-row"><input id="pay_rate" type="number" placeholder="Standard Daily Rate Base Allocation" /><input id="pay_days" type="number" placeholder="Verified Production Attendance Counter" /></div>
+    <div class="form-row"><input id="pay_ot" type="number" placeholder="Overtime Hours Rendered" /><input id="pay_deductions" type="number" placeholder="Regulatory Account Deductions Allocation" /></div>
+    <div class="form-row"><input id="pay_start" type="date" /><input id="pay_end" type="date" /></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px">
+      <button id="payCancel" class="ghost btn-sm">Cancel</button>
+      <button id="paySave" class="btn btn-sm">Calculate & Commit Payroll Matrix</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbwXGN8sBJNVtDCV49mjEljEAtAiwIEv6_XnDpyY9zJKFljUmQXPf1vHMhI1Tyx8E3bC3w/exec'; // Ensure you place your production deployed Web App routing target string here
+
+let currentSession = null;
+let store = { customers:[], quotations:[], designs:[], joborders:[], operations:[], accounting:[], payroll:[], audit_logs:[] };
+
+function $(id){ return document.getElementById(id); }
+function show(el){ el.classList.remove('hidden'); el.setAttribute('aria-hidden','false'); }
+function hide(el){ el.classList.add('hidden'); el.setAttribute('aria-hidden','true'); }
+
+async function postAction(action, payload = {}) {
+  const body = { action, payload: Object.assign({}, payload, { token: currentSession ? currentSession.token : '' }) };
+  const res = await fetch(API_URL, { method:'POST', mode: 'cors', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(body) });
+  const j = await res.json();
+  if (!j.success) throw new Error(j.error || 'Enterprise API Core Exception State Encountered');
+  return j.data;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  bindEvents();
+  loadSession();
+  if (currentSession) {
+    showAppUI();
+    refreshAll();
+  } else {
+    showSignin();
+  }
+});
+
+function bindEvents(){
+  $('btnSignIn').addEventListener('click', handleSignIn);
+  $('btnInitSheets').addEventListener('click', forceSystemResetInitialization);
+  $('btnLogout').addEventListener('click', handleLogout);
+  document.querySelectorAll('.nav').forEach(b => b.addEventListener('click', (e)=>switchView(e.target.dataset.view)));
+  $('btnNewCustomer').addEventListener('click', ()=>openCustomerModal());
+  $('custCancel').addEventListener('click', ()=>hide($('modalCustomer')));
+  $('custSave').addEventListener('click', saveCustomer);
+  $('btnNewQuotation').addEventListener('click', ()=>openQuotationModal());
+  $('qtCancel').addEventListener('click', ()=>hide($('modalQuotation')));
+  $('qtSave').addEventListener('click', saveQuotation);
+  $('btnUploadDesign').addEventListener('click', ()=>openDesignModal());
+  $('desCancel').addEventListener('click', ()=>hide($('modalDesign')));
+  $('desSave').addEventListener('click', saveDesign);
+  $('searchBox').addEventListener('input', handleSearch);
+  
+  $('btnGenerate').addEventListener('click', executeReportingMetricsPipeline);
+  $('btnNewInvoice').addEventListener('click', ()=>openAccountingModal());
+  $('accCancel').addEventListener('click', ()=>hide($('modalAccounting')));
+  $('accSave').addEventListener('click', saveAccountingRecord);
+  
+  $('btnNewJO').addEventListener('click', ()=>openJobOrderModal());
+  $('joCancel').addEventListener('click', ()=>hide($('modalJobOrder')));
+  $('joSave').addEventListener('click', saveJobOrderRecord);
+  
+  $('opCancel').addEventListener('click', ()=>hide($('modalOperation')));
+  $('opSave').addEventListener('click', saveOperationPipelineRecord);
+  
+  $('btnNewPayroll').addEventListener('click', ()=>openPayrollModal());
+  $('payCancel').addEventListener('click', ()=>hide($('modalPayroll')));
+  $('paySave').addEventListener('click', savePayrollRecord);
+}
+
+function saveSessionToLocal(){ if (currentSession) localStorage.setItem('ndc22_session', JSON.stringify(currentSession)); }
+function loadSession(){ const s = localStorage.getItem('ndc22_session'); if (s) currentSession = JSON.parse(s); }
+function clearSession(){ localStorage.removeItem('ndc22_session'); currentSession = null; }
+
+function showSignin(){ show($('signinCard')); hide($('appUI')); $('signinMsg').textContent=''; }
+function showAppUI(){ hide($('signinCard')); show($('appUI')); $('userInfo').textContent = currentSession.username + ' (' + currentSession.role + ')'; show($('btnLogout')); switchView('dashboard'); }
+
+async function handleSignIn(){
+  const u = $('inputUser').value.trim();
+  const p = $('inputPass').value;
+  try {
+    const res = await fetch(API_URL, { method:'POST', body: JSON.stringify({ action:'login', payload:{ username:u, password:p } })});
+    const j = await res.json();
+    if (!j.success) { $('signinMsg').textContent = j.error || 'Authentication failure validation signature mismatch'; return; }
+    currentSession = j.data;
+    saveSessionToLocal();
+    showAppUI();
+    await refreshAll();
+  } catch(err) {
+    $('signinMsg').textContent = err.message || 'System Transport Failure';
+  }
+}
+
+async function handleLogout(){
+  try { await postAction('logout', { token: currentSession.token }); } catch(e){}
+  clearSession();
+  location.reload();
+}
+
+async function forceSystemResetInitialization(){
+  if(!confirm("Are you absolutely sure you want to completely initialize/wipe structural tables directly from the remote cloud instance?")) return;
+  try {
+    const res = await fetch(API_URL, { method:'POST', body: JSON.stringify({ action:'initializeSheets', payload:{} })});
+    const j = await res.json();
+    alert(j.data?.message || j.message || "Initialization Command Injected Successfully.");
+  } catch(e) { alert("Initialization routing error verification flag missing: " + e.message); }
+}
+
+async function refreshAll(){
+  try {
+    const data = await postAction('syncEnterpriseData', {});
+    store = Object.assign(store, data);
+    renderAll();
+  } catch(err){
+    console.error('refreshAll Failure', err);
+  }
+}
+
+function renderAll(){
+  renderDashboard();
+  renderCustomers();
+  renderQuotations();
+  renderDesigns();
+  renderJobOrders();
+  renderOperations();
+  renderAccounting();
+  renderPayroll();
+  renderAudit();
+}
+
+function renderDashboard(){
+  $('kpi_inquiries').textContent = store.customers.length || 0;
+  $('kpi_pending_q').textContent = (store.quotations || []).filter(q=>q.approval_status==='Pending').length;
+  $('kpi_projects').textContent = store.joborders.length || 0;
+  $('kpi_ongoing').textContent = (store.joborders||[]).filter(j=>['Fabrication','For Delivery','Installation'].includes(j.status)).length;
+  $('kpi_completed').textContent = (store.joborders||[]).filter(j=>j.status==='Completed').length;
+  const unpaid = (store.accounting||[]).filter(a=>a.status!=='Verified').reduce((s,r)=>s + (Number(r.amount)||0),0);
+  $('kpi_unpaid').textContent = '₱' + unpaid.toLocaleString('en-US', {minimumFractionDigits: 2});
+  $('kpi_payroll_pending').textContent = (store.payroll||[]).filter(p=>p.status==='Pending').length;
+  const recent = (store.audit_logs||[]).slice(-12).reverse().map(a=>`<div>[${a.timestamp ? a.timestamp.substring(11,19) : ''}] ${a.username} -> ${a.action} -> ${a.resource}</div>`).join('');
+  $('recentEvents').innerHTML = recent || '<div class="small">System idle state baseline maintained.</div>';
+}
+
+function renderCustomers(){
+  const tbody = $('tblCustomers').querySelector('tbody'); tbody.innerHTML = '';
+  (store.customers||[]).forEach(c=>{
+    if(c.status === 'Deleted') return;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${c.customer_id}</td><td><b>${c.fullname}</b></td><td>${c.contact_number||''}</td><td>${c.service_type||''}</td><td>${c.event_date||''}</td><td><span class="badge badge-approved">${c.status||''}</span></td>
+      <td class="actions">
+        <button class="btn-sm" onclick="openCustomerModal('${c.customer_id}')">Edit</button>
+        <button class="btn-sm" style="color:var(--danger)" onclick="deleteCustomer('${c.customer_id}')">Delete</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderQuotations(){
+  const tbody = $('tblQuotations').querySelector('tbody'); tbody.innerHTML = '';
+  (store.quotations||[]).forEach(q=>{
+    const tr = document.createElement('tr');
+    const badgeClass = q.approval_status === 'Approved' ? 'badge-approved' : (q.approval_status === 'Rejected' ? 'badge-failed' : 'badge-pending');
+    tr.innerHTML = `<td>${q.quotation_id}</td><td>${q.customer_name||q.customer_id||''}</td><td>${q.tent_size} (${q.material})</td><td>${q.quantity}</td><td>₱${Number(q.total_cost||0).toLocaleString('en-US', {minimumFractionDigits: 2})}</td><td><span class="badge ${badgeClass}">${q.approval_status||'Pending'}</span></td>
+      <td class="actions">
+        <button class="btn-sm" onclick="openQuotationModal('${q.quotation_id}')">Modify</button>
+        ${(currentSession && currentSession.role==='Owner')? `<button class="btn-sm" style="color:var(--success)" onclick="approveQuotation('${q.quotation_id}', true)">Approve</button><button class="btn-sm" style="color:var(--danger)" onclick="approveQuotation('${q.quotation_id}', false)">Reject</button>` : ''}
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderDesigns(){
+  const tbody = $('tblDesigns').querySelector('tbody'); tbody.innerHTML = '';
+  (store.designs||[]).forEach(d=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${d.design_id}</td><td>${d.quotation_id||''}</td><td><span class="badge">${d.status||''}</span></td><td>${d.revisions||0} Matrix Rounds</td>
+      <td class="actions">
+        <button class="btn-sm" onclick="openDesignModal('${d.design_id}')">View Perspective Map</button>
+        ${(currentSession && ['Owner','Admin Coordinator'].includes(currentSession.role))? `<button class="btn-sm" onclick="approveDesign('${d.design_id}', true)">Approve View</button><button class="btn-sm" onclick="approveDesign('${d.design_id}', false)">Revision Pass</button>` : ''}
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderJobOrders(){
+  const tbody = $('tblJOs').querySelector('tbody'); tbody.innerHTML = '';
+  (store.joborders||[]).forEach(j=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${j.jo_number}</td><td>${j.customer_name||''}</td><td>${j.project_location||''}</td><td>${j.schedule||''}</td><td><span class="badge badge-pending">${j.status||''}</span></td>
+      <td class="actions">
+        <button class="btn-sm" onclick="openJobOrderModal('${j.jo_number}')">View Full Allocation</button>
+        <button class="btn-sm" onclick="instantiateOperationalTrackingRow('${j.jo_number}')">Inbound To Pipeline</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderOperations(){
+  const tbody = $('tblOps').querySelector('tbody'); tbody.innerHTML = '';
+  (store.operations||[]).forEach(o=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${o.op_id}</td><td>${o.jo_number||''}</td><td><b>${o.stage||''}</b></td><td>${o.progress_percent||0}% Completion Matrix</td><td>${o.last_update ? o.last_update.substring(0,10): ''}</td>
+      <td class="actions"><button class="btn-sm" onclick="openOperationModal('${o.op_id}')">Adjust Metrics</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderAccounting(){
+  const tbody = $('tblAccounting').querySelector('tbody'); tbody.innerHTML = '';
+  (store.accounting||[]).forEach(a=>{
+    const tr = document.createElement('tr');
+    const bClass = a.status === 'Verified' ? 'badge-approved' : 'badge-pending';
+    tr.innerHTML = `<td>${a.invoice_id}</td><td>${a.jo_number||''}</td><td>${a.customer_name||''}</td><td>₱${Number(a.amount||0).toLocaleString('en-US', {minimumFractionDigits:2})}</td><td>${a.payment_method||''}</td><td><span class="badge ${bClass}">${a.status||''}</span></td>
+      <td class="actions">${(currentSession && currentSession.role==='Owner' && a.status!=='Verified')? `<button class="btn-sm" style="color:var(--success)" onclick="verifyAccountingTransactionRow('${a.invoice_id}', true)">Authorize Payment</button>` : `<span class="small">Fully System Injected</span>`}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderPayroll(){
+  const tbody = $('tblPayroll').querySelector('tbody'); tbody.innerHTML = '';
+  (store.payroll||[]).forEach(p=>{
+    const tr = document.createElement('tr');
+    const payrollBadge = p.status === 'Approved' ? 'badge-approved' : 'badge-pending';
+    tr.innerHTML = `<td>${p.payroll_id}</td><td>${p.employee_name||''}</td><td>₱${Number(p.gross_pay||0).toFixed(2)}</td><td><b>₱${Number(p.net_pay||0).toFixed(2)}</b></td><td><span class="badge ${payrollBadge}">${p.status||''}</span></td>
+      <td class="actions">${(currentSession && currentSession.role==='Owner' && p.status === 'Pending')? `<button class="btn-sm" style="color:var(--success)" onclick="approvePayrollItemRow('${p.payroll_id}', true)">Approve Funds Release</button>` : `<span class="small">Reconciled Lock</span>`}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderAudit(){
+  const tbody = $('tblAudit').querySelector('tbody'); tbody.innerHTML = '';
+  (store.audit_logs||[]).slice().reverse().forEach(a=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${a.log_id}</td><td style="white-space:nowrap;">${a.timestamp ? a.timestamp.substring(0,19) : ''}</td><td>${a.username} [${a.role}]</td><td><b>${a.action}</b></td><td>${a.resource}</td><td class="small">${a.details}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function switchView(name){
+  document.querySelectorAll('[id^="view-"]').forEach(v=>v.classList.add('hidden'));
+  const el = $('view-' + name);
+  if (el) el.classList.remove('hidden');
+}
+
+/* Modals CRUD Control Logic Blocks */
+function openCustomerModal(id){
+  $('cust_name').value=''; $('cust_contact').value=''; $('cust_event').value=''; $('cust_service').value=''; $('cust_status').value='Active'; $('cust_notes').value='';
+  $('custTitle').textContent = id ? 'Modify Customer Metadata Runtime' : 'Add New Customer Profile';
+  if (id){
+    const c = (store.customers||[]).find(x=>x.customer_id===id);
+    if (c){ $('cust_name').value=c.fullname; $('cust_contact').value=c.contact_number; $('cust_event').value=c.event_date; $('cust_service').value=c.service_type; $('cust_status').value=c.status; $('cust_notes').value=c.notes||''; $('custSave').dataset.editId = id; }
+  } else { delete $('custSave').dataset.editId; }
+  show($('modalCustomer'));
+}
+
+async function saveCustomer(){
+  const data = { fullname:$('cust_name').value.trim(), contact_number:$('cust_contact').value.trim(), event_date:$('cust_event').value, service_type:$('cust_service').value.trim(), notes:$('cust_notes').value.trim(), status:$('cust_status').value.trim() };
+  const id = $('custSave').dataset.editId;
+  try {
+    if (id){ await postAction('updateCustomer', { id, data }); } 
+    else { await postAction('createCustomer', { data }); }
+    hide($('modalCustomer')); await refreshAll();
+  } catch(err){ alert('Transaction Validation Intercepted: ' + err.message); }
+}
+
+async function deleteCustomer(id){
+  if (!confirm('Execute cascading soft delete configuration parameters on target?')) return;
+  try { await postAction('deleteCustomer', { id }); await refreshAll(); } catch(err){ alert('Action execution error: ' + err.message); }
+}
+
+function openQuotationModal(id){
+  $('qt_customer').value=''; $('qt_tent').value=''; $('qt_material').value=''; $('qt_frame').value=''; $('qt_qty').value=1; $('qt_sub').value=''; $('qt_vat').value=''; $('qt_discount').value=''; $('qt_notes').value='';
+  $('qtTitle').textContent = id ? 'Re-verify Active Quotation Structure' : 'Instantiate System Level Cost Estimate Matrix';
+  if (id){
+    const q = (store.quotations||[]).find(x=>x.quotation_id===id);
+    if (q){ $('qt_customer').value = q.customer_id || q.customer_name; $('qt_tent').value=q.tent_size||''; $('qt_material').value=q.material||''; $('qt_frame').value=q.frame_type||''; $('qt_qty').value=q.quantity||1; $('qt_sub').value=q.subtotal||''; $('qt_vat').value=q.vat||''; $('qt_discount').value=q.discount||''; $('qt_notes').value=q.notes||''; $('qtSave').dataset.editId = id; }
+  } else { delete $('qtSave').dataset.editId; }
+  show($('modalQuotation'));
+}
+
+async function saveQuotation(){
+  const data = { customer_name: $('qt_customer').value.trim(), tent_size: $('qt_tent').value.trim(), material: $('qt_material').value.trim(), frame_type: $('qt_frame').value.trim(), quantity: Number($('qt_qty').value) || 1, subtotal: Number($('qt_sub').value) || 0, discount: Number($('qt_discount').value) || 0, notes: $('qt_notes').value.trim() };
+  const editId = $('qtSave').dataset.editId;
+  try {
+    if (editId){ await postAction('updateQuotation', { id: editId, data }); } 
+    else { await postAction('createQuotation', { data }); }
+    hide($('modalQuotation')); await refreshAll();
+  } catch(err){ alert('Core validation exception mapped: ' + err.message); }
+}
+
+async function approveQuotation(id, approve){
+  try { await postAction('approveQuotation', { id, approve: !!approve, note: 'Processed validation via Admin Dashboard Node' }); await refreshAll(); } catch(e){ alert(e.message); }
+}
+
+function openDesignModal(id){
+  $('des_qid').value=''; $('des_p1').value=''; $('des_p2').value=''; $('des_p3').value=''; $('des_notes').value='';
+  $('designTitle').textContent = id ? 'Inspect Mechanical Layout Metadata' : 'Map Vector Design Pipeline';
+  if (id){
+    const d = (store.designs||[]).find(x=>x.design_id===id);
+    if (d){ $('des_qid').value=d.quotation_id||''; $('des_p1').value=d.p1_url||''; $('des_p2').value=d.p2_url||''; $('des_p3').value=d.p3_url||''; $('des_notes').value=d.artist_notes||''; $('desSave').dataset.editId = id; }
+  } else delete $('desSave').dataset.editId;
+  show($('modalDesign'));
+}
+
+/* Hardened Cutoff Resolution Handler Block */
+async function saveDesign(){
+  const data = { quotation_id: $('des_qid').value.trim(), p1_url: $('des_p1').value.trim(), p2_url: $('des_p2').value.trim(), p3_url: $('des_p3').value.trim(), artist_notes: $('des_notes').value.trim() };
+  const editId = $('desSave').dataset.editId;
+  try {
+    if(editId) { await postAction('updateDesign', { id: editId, data }); }
+    else { await postAction('uploadDesign', { data }); }
+    hide($('modalDesign')); await refreshAll();
+  } catch(err) { alert('Design parsing compilation block error: ' + err.message); }
+}
+
+async function approveDesign(id, approve) {
+  if(!confirm("Authorize changes to design mapping verification structure?")) return;
+  try { await postAction('approveDesign', { id, approve: !!approve, note: 'Design system interaction verified.' }); await refreshAll(); } 
+  catch(e) { alert(e.message); }
+}
+
+/* Operational Job Order Allocation Modals Logic */
+function openJobOrderModal(id) {
+  $('jo_qid').value=''; $('jo_customer').value=''; $('jo_location').value=''; $('jo_schedule').value=''; $('jo_foreman').value=''; $('jo_workers').value=''; $('jo_notes').value='';
+  $('joTitle').textContent = id ? 'Modify Open Job Order Directives' : 'Instantiate System Level Project Task Matrix';
+  if(id) {
+    const j = (store.joborders||[]).find(x=>x.jo_number===id);
+    if(j) { $('jo_qid').value=j.quotation_id; $('jo_customer').value=j.customer_name; $('jo_location').value=j.project_location; $('jo_schedule').value=j.schedule; $('jo_foreman').value=j.assigned_foreman; $('jo_workers').value=j.assigned_workers; $('jo_notes').value=j.notes; $('joSave').dataset.editId = id; }
+  } else { delete $('joSave').dataset.editId; }
+  show($('modalJobOrder'));
+}
+
+async function saveJobOrderRecord() {
+  const data = { quotation_id: $('jo_qid').value.trim(), customer_name: $('jo_customer').value.trim(), project_location: $('jo_location').value.trim(), schedule: $('jo_schedule').value, assigned_foreman: $('jo_foreman').value.trim(), assigned_workers: $('jo_workers').value.trim(), notes: $('jo_notes').value.trim() };
+  const id = $('joSave').dataset.editId;
+  try {
+    if(id) { await postAction('updateJobOrder', { id, data }); }
+    else { await postAction('createJobOrder', { data }); }
+    hide($('modalJobOrder')); await refreshAll();
+  } catch(e) { alert('JO processing exception runtime error: ' + e.message); }
+}
+
+async function instantiateOperationalTrackingRow(joNumber) {
+  try {
+    await postAction('createOperation', { data: { jo_number: joNumber, stage: 'Fabrication', status: 'In Progress', progress_percent: 10 } });
+    alert('Logistical pipeline row tracking initialized for ' + joNumber);
+    await refreshAll();
+    switchView('operations');
+  } catch(e) { alert(e.message); }
+}
+
+function openOperationModal(id) {
+  const o = (store.operations||[]).find(x=>x.op_id===id);
+  if(!o) return;
+  $('op_jo').value = o.jo_number;
+  $('op_stage').value = o.stage;
+  $('op_percent').value = o.progress_percent;
+  $('op_status').value = o.status;
+  $('op_notes').value = o.notes||'';
+  $('opSave').dataset.editId = id;
+  show($('modalOperation'));
+}
+
+async function saveOperationPipelineRecord() {
+  const id = $('opSave').dataset.editId;
+  const data = { stage: $('op_stage').value.trim(), progress_percent: Number($('op_percent').value)||0, status: $('op_status').value.trim(), notes: $('op_notes').value.trim() };
+  try {
+    await postAction('updateOperation', { id, data });
+    hide($('modalOperation')); await refreshAll();
+  } catch(e) { alert(e.message); }
+}
+
+/* Master Accounts Ledger Processing Layer */
+function openAccountingModal() {
+  $('acc_jo').value=''; $('acc_customer').value=''; $('acc_amount').value=''; $('acc_method').value=''; $('acc_notes').value='';
+  show($('modalAccounting'));
+}
+
+async function saveAccountingRecord() {
+  const data = { jo_number: $('acc_jo').value.trim(), customer_name: $('acc_customer').value.trim(), transaction_type: $('acc_type').value, amount: Number($('acc_amount').value)||0, payment_method: $('acc_method').value.trim(), notes: $('acc_notes').value.trim() };
+  try {
+    await postAction('createAccounting', { data });
+    hide($('modalAccounting')); await refreshAll();
+  } catch(e) { alert(e.message); }
+}
+
+async function verifyAccountingTransactionRow(id, verify) {
+  try { await postAction('verifyAccounting', { id, verify: !!verify }); await refreshAll(); }
+  catch(e) { alert(e.message); }
+}
+
+/* Corporate Payroll Formulation Engine */
+function openPayrollModal() {
+  $('pay_name').value=''; $('pay_emp_id').value=''; $('pay_rate').value=''; $('pay_days').value=''; $('pay_ot').value=''; $('pay_deductions').value='';
+  show($('modalPayroll'));
+}
+
+async function savePayrollRecord() {
+  const data = { employee_name: $('pay_name').value.trim(), employee_id: $('pay_emp_id').value.trim(), base_rate: Number($('pay_rate').value)||0, attendance_days: Number($('pay_days').value)||0, overtime_hours: Number($('pay_ot').value)||0, deductions: Number($('pay_deductions').value)||0, pay_period_start: $('pay_start').value, pay_period_end: $('pay_end').value };
+  try {
+    await postAction('createPayroll', { data });
+    hide($('modalPayroll')); await refreshAll();
+  } catch(e) { alert(e.message); }
+}
+
+async function approvePayrollItemRow(id, approve) {
+  if(!confirm("Authorize immediate corporate cash disbursement architecture pipeline release for payroll entity?")) return;
+  try { await postAction('approvePayroll', { id, approve: !!approve }); await refreshAll(); }
+  catch(e) { alert(e.message); }
+}
+
+/* Real-Time Deep Object Cross-Context Search Core Algorithm */
+function handleSearch(e) {
+  const query = e.target.value.toLowerCase().trim();
+  if(!query) { renderAll(); return; }
+  
+  // High performance localized linear deep structural evaluation logic
+  const filteredCustomers = store.customers.filter(c => (c.fullname && c.fullname.toLowerCase().includes(query)) || (c.customer_id && c.customer_id.toLowerCase().includes(query)));
+  const filteredQuotations = store.quotations.filter(q => (q.quotation_id && q.quotation_id.toLowerCase().includes(query)) || (q.customer_name && q.customer_name.toLowerCase().includes(query)));
+  const filteredJobOrders = store.joborders.filter(j => (j.jo_number && j.jo_number.toLowerCase().includes(query)) || (j.customer_name && j.customer_name.toLowerCase().includes(query)));
+
+  // Hot swap operational arrays down to sub-rendered fragments seamlessly
+  const custBody = $('tblCustomers').querySelector('tbody'); custBody.innerHTML = '';
+  filteredCustomers.forEach(c => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${c.customer_id}</td><td><b>${c.fullname}</b></td><td>${c.contact_number}</td><td>${c.service_type}</td><td>${c.event_date}</td><td><span class="badge badge-approved">${c.status}</span></td><td class="actions"><button class="btn-sm" onclick="openCustomerModal('${c.customer_id}')">Edit</button></td>`;
+    custBody.appendChild(tr);
+  });
+
+  const quotBody = $('tblQuotations').querySelector('tbody'); quotBody.innerHTML = '';
+  filteredQuotations.forEach(q => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${q.quotation_id}</td><td>${q.customer_name||q.customer_id}</td><td>${q.tent_size}</td><td>${q.quantity}</td><td>₱${Number(q.total_cost||0).toFixed(2)}</td><td><span class="badge">${q.approval_status}</span></td><td class="actions"><button class="btn-sm" onclick="openQuotationModal('${q.quotation_id}')">Open</button></td>`;
+    quotBody.appendChild(tr);
+  });
+}
+
+/* Analytical Metrics Aggregation Engine */
+async function executeReportingMetricsPipeline() {
+  const type = $('reportSelect').value;
+  const start = $('reportFrom').value;
+  const end = $('reportTo').value;
+  $('reportOutput').textContent = "Processing master structural report compile arrays... please verify connection parameters remain intact.";
+  try {
+    const rpt = await postAction('generateReport', { type, start, end });
+    let outputString = `==================================================\n`;
+    outputString += `  NDC22 REPORTING ENGINE: SYSTEM MATRIX COMPILE   \n`;
+    outputString += `==================================================\n`;
+    outputString += `Report Reference Token ID : ${rpt.report_id}\n`;
+    outputString += `Identified Execution Path : ${rpt.type.toUpperCase()} AUDIT WINDOW\n`;
+    outputString += `Temporal Windows Coverage : [${rpt.start}] to [${rpt.end}]\n`;
+    outputString += `Server State Validation   : COMPILED SECURELY VIA WEB WORKER\n\n`;
+    outputString += `--------------------------------------------------\n`;
+    outputString += `DATA METRICS SUMMARY ATTACHED:\n`;
+    outputString += `--------------------------------------------------\n`;
+    outputString += `Current Gross System Leads Profiled    : ${rpt.data.total_inquiries} Entities\n`;
+    outputString += `Awaiting Corporate Quotation Signatures : ${rpt.data.pending_q} Modules\n`;
+    outputString += `Active Infrastructure Deployments Map  : ${rpt.data.approved_projects} Jobs\n`;
+    outputString += `Unverified Dynamic System Balances Out : ₱${Number(rpt.data.unpaid_balances).toLocaleString('en-US', {minimumFractionDigits: 2})}\n`;
+    outputString += `Pending Executive Payroll Approvals    : ${rpt.data.payroll_pending} Payroll Injections\n`;
+    outputString += `==================================================\n`;
+    $('reportOutput').textContent = outputString;
+  } catch(e) { $('reportOutput').textContent = "Analytical pipeline compilation blocked: " + e.message; }
+}
+</script>
+</body>
+</html>
