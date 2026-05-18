@@ -253,7 +253,7 @@
     <div id="aiGuardian">
         <div class="guardian-bubble" id="guardianMsg">Boss, system initialized. Ready for operations.</div>
         <div class="guardian-avatar-wrapper" id="guardianAvatarBtn" onclick="triggerSystemGuide()">
-            <img src="assets/logo.png" alt="AI" class="guardian-avatar" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class='guardian-avatar'>👑</div>';">
+            <img src="assets/logo.png" alt="AI" class="guardian-avatar" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\'guardian-avatar\'>👑</div>';">
         </div>
     </div>
 
@@ -490,7 +490,7 @@
                 </div>
                 <div class="table-wrapper" style="max-height: 500px; overflow-y: auto;">
                     <table>
-                        <thead><tr><th>Shift Date</th><th>Employee</th><th>Time In</th><th>Time Out</th><th>Computed Hours</th><th>Admin Action</th></tr></thead>
+                        <thead><tr><th>Shift Date</th><th>Employee</th><th>Time In</th><th>Time Out</th><th>Late (Mins/Ded)</th><th>OT (Hrs/Pay)</th><th>Admin Action</th></tr></thead>
                         <tbody id="adminBundyBody"></tbody>
                     </table>
                 </div>
@@ -680,7 +680,7 @@
             <div class="card">
                 <div class="card-header"><div class="card-title">📝 Recent Attendance Logs</div></div>
                 <div class="table-wrapper">
-                    <table><thead><tr><th>Shift Date</th><th>Time In</th><th>Time Out</th><th>Total Hours</th></tr></thead><tbody id="myBundyBody"></tbody></table>
+                    <table><thead><tr><th>Shift Date</th><th>Time In</th><th>Time Out</th><th>Late (Mins/Ded)</th><th>OT (Hrs/Pay)</th></tr></thead><tbody id="myBundyBody"></tbody></table>
                 </div>
             </div>
         </div>
@@ -970,6 +970,32 @@
             if(balances.length === 0) { balBody.innerHTML = `<tr><td colspan="4"><div class="empty-state">All accounts clear.</div></td></tr>`; } else { balances.forEach(s => { balBody.innerHTML += `<tr><td><strong>${s.client}</strong><br><span style="font-size:0.7rem; color:var(--text-muted);">${s.date}</span></td><td class="val-num">${fM(s.total)}</td><td class="val-num" style="color:var(--success);">${fM(s.paid)}</td><td class="val-num" style="color:var(--danger); font-weight:bold;">${fM(s.balance)}</td></tr>`; }); }
         }
 
+        function calcBundyStats(emp, log) {
+            if(!log.timeIn) return { lateMins:0, lateDed:0, otHrs:0, otPay:0 };
+            const dailyRate = (emp.type === 'Job Order') ? emp.base : (emp.base / (db.settings.days || 22));
+            const hourlyRate = dailyRate / 8;
+            const perMinRate = hourlyRate / 60;
+            
+            let shiftInMins = getMins(db.settings.shiftIn || "08:00");
+            let shiftOutMins = getMins(db.settings.shiftOut || "17:00");
+            let inMins = getMins(log.timeIn);
+            let outMins = log.timeOut ? getMins(log.timeOut) : null;
+            
+            let lateMins = 0;
+            if(inMins > shiftInMins) lateMins = inMins - shiftInMins;
+            let lateDed = lateMins * perMinRate;
+            
+            let otHrs = 0;
+            let otPay = 0;
+            if(outMins && outMins > shiftOutMins) {
+                let otMins = outMins - shiftOutMins;
+                otHrs = Math.floor(otMins / 60); 
+                otPay = otHrs * hourlyRate;
+            }
+            
+            return { lateMins, lateDed, otHrs, otPay };
+        }
+
         function refreshAdminUI() {
             document.getElementById('dashHeadcount').innerText = db.employees.length; document.getElementById('dashTotalPayroll').innerText = fM(db.payroll.reduce((sum, p) => sum + p.net, 0)); document.getElementById('dashLoans').innerText = fM(db.loans.filter(l => l.balance > 0).reduce((sum, l) => sum + l.balance, 0));
             const badge = document.getElementById('pendingLeaveBadge'); const pendingLeaves = db.leaves.filter(l => l.status === 'Pending').length; if(pendingLeaves > 0) { badge.style.display = 'block'; badge.innerText = pendingLeaves; } else { badge.style.display = 'none'; }
@@ -977,7 +1003,7 @@
             let eB = document.getElementById('empTableBody'); eB.innerHTML=''; let selL = document.getElementById('loanEmp'); selL.innerHTML='<option value="">-- Select --</option>';
             if(db.employees.length === 0) { eB.innerHTML = `<tr><td colspan="6"><div class="empty-state">Masterlist null.</div></td></tr>`; } else { db.employees.forEach(e => { const tBadge = e.type === 'Job Order' ? '<span class="badge badge-warning">⚠️ Job Order</span>' : '<span class="badge badge-success">💼 Regular</span>'; const ruleBadge = (e.strictTime === 'true' || e.strictTime === true) ? '<span class="badge badge-strict">⏱️ Strict</span>' : ''; let roleStr = e.crmAccess || 'Standard'; let crmBadge = ''; if(roleStr === 'Admin' || roleStr === 'true' || roleStr === true) crmBadge = '<span class="badge badge-info">👑 Admin</span>'; else if(roleStr === 'Foreman') crmBadge = '<span class="badge" style="background:#f97316; color:white;">👷‍♂️ Foreman</span>'; eB.innerHTML += `<tr><td><span class="badge badge-info">${e.id}</span></td><td><strong>${e.name}</strong><br>${tBadge} ${ruleBadge} ${crmBadge}</td><td><span>${e.cycle}</span></td><td class="val-num">${fM(e.base)}</td><td class="val-num">SSS: ${e.sssC||0} | PH: ${e.phicC||0} | HDMF: ${e.hdmfC||0}</td><td style="text-align:center;"><button class="btn btn-icon" onclick="editEmployee('${e.id}')">✏️</button><button class="btn btn-icon" onclick="deleteEmp('${e.id}')">🗑️</button></td></tr>`; selL.innerHTML += `<option value="${e.id}">${e.name}</option>`; }); }
             let ab = document.getElementById('adminBundyBody'); ab.innerHTML = '';
-            if(db.bundyLogs.length === 0) { ab.innerHTML = `<tr><td colspan="6"><div class="empty-state">No entry blocks found.</div></td></tr>`; } else { [...db.bundyLogs].reverse().forEach(l => { const e = db.employees.find(x => x.id === l.empId); const isLocked = l.timeOut && !l.unlocked; const actBtn = isLocked ? `<button class="btn btn-warning" style="padding:4px 8px;" onclick="unlockBundy('${l.empId}', '${l.date}')">🔓 Unlock</button>` : `<span class="badge badge-success">✅ Valid</span>`; ab.innerHTML += `<tr><td>${l.date}</td><td><strong>${e?e.name:l.empId}</strong></td><td><span class="badge badge-success">📥 ${l.timeIn}</span></td><td>${l.timeOut ? `<span class="badge badge-danger">📤 ${l.timeOut}</span>` : '-'}</td><td><strong>${l.hrs ? l.hrs + ' hrs' : '-'}</strong></td><td>${actBtn}</td></tr>`; }); }
+            if(db.bundyLogs.length === 0) { ab.innerHTML = `<tr><td colspan="7"><div class="empty-state">No entry blocks found.</div></td></tr>`; } else { [...db.bundyLogs].reverse().forEach(l => { const e = db.employees.find(x => x.id === l.empId); const stats = e ? calcBundyStats(e, l) : { lateMins:0, lateDed:0, otHrs:0, otPay:0 }; const isLocked = l.timeOut && !l.unlocked; const actBtn = isLocked ? `<button class="btn btn-warning" style="padding:4px 8px;" onclick="unlockBundy('${l.empId}', '${l.date}')">🔓 Unlock</button>` : `<span class="badge badge-success">✅ Valid</span>`; let lateHtml = stats.lateMins > 0 ? `<span style="color:var(--danger); font-weight:bold;">${stats.lateMins} mins</span><br><small style="color:darkred;">-₱${fN(stats.lateDed)}</small>` : `<span class="text-muted">0 mins</span>`; let otHtml = stats.otHrs > 0 ? `<span style="color:var(--success); font-weight:bold;">${stats.otHrs} hrs</span><br><small style="color:darkgreen;">+₱${fN(stats.otPay)}</small>` : `<span class="text-muted">0 hrs</span>`; ab.innerHTML += `<tr><td>${l.date}</td><td><strong>${e?e.name:l.empId}</strong></td><td><span class="badge badge-success">📥 ${l.timeIn}</span></td><td>${l.timeOut ? `<span class="badge badge-danger">📤 ${l.timeOut}</span>` : '-'}</td><td>${lateHtml}</td><td>${otHtml}</td><td>${actBtn}</td></tr>`; }); }
             let lB = document.getElementById('loanTableBody'); lB.innerHTML='';
             if(db.loans.length === 0) { lB.innerHTML = `<tr><td colspan="7"><div class="empty-state">No active ledgers.</div></td></tr>`; } else { db.loans.forEach(l => { const e = db.employees.find(x=>x.id===l.empId); const status = l.balance <= 0 ? '<span class="badge badge-success">✅ Settled</span>' : '<span class="badge badge-danger">🚨 Active</span>'; lB.innerHTML += `<tr><td><strong>${e?e.name:l.empId}</strong></td><td>${l.type}</td><td class="val-num">${fM(l.amount)}</td><td class="val-num" style="color:var(--danger); font-weight:800;">${fM(l.balance)}</td><td class="val-num">${fM(l.ded)}</td><td>${status}</td><td style="text-align:center;"><button class="btn btn-outline" style="padding:4px 8px;" onclick="printLoanLedger('${l.id}')">Ledger</button></td></tr>`; }); }
             let lvB = document.getElementById('adminLeaveBody'); lvB.innerHTML = '';
@@ -994,7 +1020,7 @@
             const shiftDate = getLogicalDate(); const todayLog = db.bundyLogs.find(l => l.empId === emp.id && l.date === shiftDate); const btn = document.getElementById('bundyBtn'); const stat = document.getElementById('bundyStatus'); btn.classList.remove('locked', 'active'); btn.style.borderColor = "";
             if(!todayLog) { stat.innerText = "📥 Time In"; stat.style.color = "var(--brand)"; } else if(todayLog && !todayLog.timeOut) { btn.classList.add('active'); stat.innerText = "📤 Time Out"; stat.style.color = "var(--success)"; } else if(todayLog.timeOut && !todayLog.unlocked) { btn.classList.add('locked'); stat.innerText = "🔒 Account Locked"; stat.style.color = "var(--danger)"; } else { stat.innerText = "📥 Time In (Unlocked)"; stat.style.color = "var(--warning)"; }
             let bb = document.getElementById('myBundyBody'); bb.innerHTML = ''; const myLogs = db.bundyLogs.filter(l => l.empId === emp.id).reverse();
-            if(myLogs.length === 0) { bb.innerHTML = `<tr><td colspan="4"><div class="empty-state">No lines.</div></td></tr>`; } else { myLogs.forEach(l => { bb.innerHTML += `<tr><td>${l.date}</td><td><span class="badge badge-success">📥 ${l.timeIn}</span></td><td>${l.timeOut ? `<span class="badge badge-danger">📤 ${l.timeOut}</span>` : '-'}</td><td><strong>${l.hrs ? l.hrs + ' hrs' : '-'}</strong></td></tr>`; }); }
+            if(myLogs.length === 0) { bb.innerHTML = `<tr><td colspan="5"><div class="empty-state">No lines.</div></td></tr>`; } else { myLogs.forEach(l => { const stats = calcBundyStats(emp, l); let lateHtml = stats.lateMins > 0 ? `<span style="color:var(--danger); font-weight:bold;">${stats.lateMins} mins</span><br><small style="color:darkred;">-₱${fN(stats.lateDed)}</small>` : `<span class="text-muted">0 mins</span>`; let otHtml = stats.otHrs > 0 ? `<span style="color:var(--success); font-weight:bold;">${stats.otHrs} hrs</span><br><small style="color:darkgreen;">+₱${fN(stats.otPay)}</small>` : `<span class="text-muted">0 hrs</span>`; bb.innerHTML += `<tr><td>${l.date}</td><td><span class="badge badge-success">📥 ${l.timeIn}</span></td><td>${l.timeOut ? `<span class="badge badge-danger">📤 ${l.timeOut}</span>` : '-'}</td><td>${lateHtml}</td><td>${otHtml}</td></tr>`; }); }
             let lb = document.getElementById('myLeaveBody'); lb.innerHTML = ''; const myLeaves = db.leaves.filter(l => l.empId === emp.id).reverse();
             if(myLeaves.length === 0) { lb.innerHTML = `<tr><td colspan="5"><div class="empty-state">No data.</div></td></tr>`; } else { myLeaves.forEach(l => { let badge = l.status === 'Pending' ? '<span class="badge badge-warning">⏳ Pending</span>' : (l.status === 'Approved' ? '<span class="badge badge-success">✅ Approved</span>' : '<span class="badge badge-danger">❌ Rejected</span>'); lb.innerHTML += `<tr><td>${l.dateFiled}</td><td><span>${l.type}</span></td><td>${l.start} to ${l.end}</td><td>${l.days}</td><td>${badge}</td></tr>`; }); }
             let pb = document.getElementById('myPayslipsBody'); pb.innerHTML = ''; const myPayslips = db.payroll.filter(p => p.empId === emp.id).reverse();
@@ -1095,9 +1121,7 @@
             let html = `<style>@page { size: portrait; margin: 10mm; } body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }</style><div class="payslip-grid">`; batch.forEach((p, index) => { const ded = p.sss + p.phic + p.hdmf + p.tax + p.loans + p.lates + (p.charges||0); html += `<div class="mini-payslip"><div class="mp-header"><strong>🏢 ${db.settings.comp}</strong><br><span style="font-size:9px;">TIN: ${db.settings.tin} | Payslip for ${p.period}</span></div><div><div class="mp-row" style="font-weight:bold;"><span class="truncate" style="max-width:100px;">👤 ${p.empName}</span> <span>${p.empId}</span></div><div class="mp-title">Earnings</div><div class="mp-row"><span>Basic Pay (${p.days} days)</span> <span>${fM(p.basicPay)}</span></div><div class="mp-row"><span>Overtime Pay</span> <span>${fM(p.otPay)}</span></div><div class="mp-row"><span>ND/Hol/Bonus</span> <span>${fM(p.ndHolPay + p.allowBonus)}</span></div><div class="mp-row"><span>Food Allowance</span> <span>${fM(p.foodAllow || 0)}</span></div><div class="mp-row" style="border-top:1px dashed #000; padding-top:2px; font-weight:bold;"><span>Gross Earnings</span> <span>${fM(p.gross)}</span></div><div class="mp-title">Deductions</div><div class="mp-row"><span>Govt Deductions</span> <span>${fM(p.sss + p.phic + p.hdmf)}</span></div><div class="mp-row"><span>Withholding Tax</span> <span>${fM(p.tax)}</span></div><div class="mp-row"><span>Loans/Lates/Oth</span> <span>${fM(p.loans + p.lates + (p.charges||0))}</span></div><div class="mp-row" style="border-top:1px dashed #000; padding-top:2px;"><span>Total Deductions</span> <span>${fM(ded)}</span></div></div><div class="mp-row" style="margin-top:10px; font-size:13px; font-weight:bold; background:#eee; padding:5px;"><span>💸 NET TAKE HOME</span> <span>${fM(p.net)}</span></div></div>`; if ((index + 1) % 6 === 0 && index !== batch.length - 1) html += `</div><div class="page-break"></div><div class="payslip-grid">`; }); html += `</div>`; document.getElementById('printCanvas').innerHTML = html; document.body.classList.add('printing-batch'); window.print(); setTimeout(() => { document.body.classList.remove('printing-batch'); }, 500);
         }
 
-        function exportBIR1601C() { const period = document.getElementById('printPeriodSelect').value; if(!period) return showToast("Select key.", "warning"); const batch = db.payroll.filter(p => p.period === period); if(batch.length === 0) return showToast("Null return.", "error"); let csvContent = "data:text/csv;charset=utf-8,TIN,Employee Name,Gross Compensation,Non-Taxable/Exempt,Taxable Compensation,Tax Withheld
-"; batch.forEach(p => { const nonTax = p.sss + p.phic + p.hdmf + p.allowBonus + (p.foodAllow||0); const taxable = (p.gross) - nonTax; csvContent += `"${p.empId}","${p.empName}",${p.gross},${nonTax},${taxable>0?taxable:0},${p.tax}
-`; }); const link = document.createElement("a"); link.setAttribute("href", encodeURI(csvContent)); link.setAttribute("download", `BIR_1601C_${period.replace(/\s+/g, '_')}.csv`); document.body.appendChild(link); link.click(); document.body.removeChild(link); showToast("Committed to download buffer.", "success"); }
+        function exportBIR1601C() { const period = document.getElementById('printPeriodSelect').value; if(!period) return showToast("Select key.", "warning"); const batch = db.payroll.filter(p => p.period === period); if(batch.length === 0) return showToast("Null return.", "error"); let csvContent = "data:text/csv;charset=utf-8,TIN,Employee Name,Gross Compensation,Non-Taxable/Exempt,Taxable Compensation,Tax Withheld\n"; batch.forEach(p => { const nonTax = p.sss + p.phic + p.hdmf + p.allowBonus + (p.foodAllow||0); const taxable = (p.gross) - nonTax; csvContent += `"${p.empId}","${p.empName}",${p.gross},${nonTax},${taxable>0?taxable:0},${p.tax}\n`; }); const link = document.createElement("a"); link.setAttribute("href", encodeURI(csvContent)); link.setAttribute("download", `BIR_1601C_${period.replace(/\s+/g, '_')}.csv`); document.body.appendChild(link); link.click(); document.body.removeChild(link); showToast("Committed to download buffer.", "success"); }
         function compute13thMonth() { const tb = document.getElementById('thirteenthBody'); tb.innerHTML = ''; let compiled = {}; db.payroll.forEach(p => { if(!compiled[p.empId]) compiled[p.empId] = { name: p.empName, totalBasic: 0 }; compiled[p.empId].totalBasic += p.basicPay; }); for(const [id, data] of Object.entries(compiled)) { tb.innerHTML += `<tr><td>${id}</td><td><strong class="truncate" style="display:block;max-width:200px;">👤 ${data.name}</strong></td><td class="val-num">${fM(data.totalBasic)}</td><td class="val-num" style="color:var(--brand); font-weight:800; font-size:1.1rem;">${fM(r2(data.totalBasic / 12))}</td></tr>`; } if(Object.keys(compiled).length === 0) { tb.innerHTML = `<tr><td colspan="4"><div class="empty-state">Data set null.</div></td></tr>`; } }
         
         function print13thMonthReport() {
