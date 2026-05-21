@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <base target="_top">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="description" content="Degz Pulse Enterprise Operations and CRM System">
@@ -10,14 +11,8 @@
     <meta name="apple-mobile-web-app-title" content="Degz Pulse">
     <meta property="og:title" content="Degz Pulse Enterprise">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="assets/logo.png">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net https://unpkg.com blob: data:; img-src 'self' data: https://*.tile.openstreetmap.org; object-src 'none';">
+    <title class="sys-title">Degz Pulse Enterprise V35.5 (Vercel Node)</title>
     
-    <title class="sys-title">Degz Pulse Enterprise V35.5</title>
-    
-    <link rel="manifest" href="./manifest.json">
-    <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
-    <link rel="apple-touch-icon" href="assets/icon-192.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -44,12 +39,10 @@
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
         .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 6vw; font-weight: 800; color: rgba(0,0,0,0.02); pointer-events: none; z-index: 9999; white-space: nowrap; letter-spacing: 5px; }
-        .copyright-footer { position: fixed; bottom: 5px; width: 100%; text-align: center; font-size: 10px; color: var(--text-muted); z-index: 9998; pointer-events: none; }
 
         #splashScreen { position: fixed; inset: 0; background: #0f172a; z-index: 100000; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; transition: opacity 0.6s ease; opacity: 1; }
         .splash-logo { width: 80px; height: 80px; background: linear-gradient(135deg, var(--brand), #818cf8); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 800; margin-bottom: 1.5rem; box-shadow: 0 10px 25px rgba(79, 70, 229, 0.5); animation: pulseLogo 1.5s infinite alternate; }
-        .splash-logo img { width: 100%; height: 100%; object-fit: contain; border-radius: 20px; }
-
+        
         #aiGuardian { position: fixed; bottom: 80px; right: 30px; z-index: 99999; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; pointer-events: none; transition: all 0.3s ease; }
         .guardian-bubble { background: rgba(15, 23, 42, 0.95); color: white; padding: 12px 18px; border-radius: 12px 12px 0 12px; font-size: 0.85rem; font-weight: 500; box-shadow: 0 10px 25px rgba(0,0,0,0.3); backdrop-filter: blur(8px); max-width: 280px; opacity: 0; transform: translateY(10px); transition: 0.3s; border: 1px solid rgba(255,255,255,0.1); line-height: 1.4; word-wrap: break-word; }
         .guardian-bubble.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
@@ -98,7 +91,6 @@
         .form-group label { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
         .form-group input, .form-group select, .form-group textarea { padding: 0.6rem 0.8rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; background: var(--card); transition: all 0.2s; color: var(--text-main); width: 100%; }
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-light); }
-        .form-hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
 
         .stat-card { background: var(--card); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; position: relative; overflow: hidden; }
         .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--brand); }
@@ -108,7 +100,6 @@
         .sidebar { width: 260px; background: var(--sidebar); display: flex; flex-direction: column; z-index: 100; transition: 0.3s; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
         .brand { padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 12px; }
         .brand-logo { width: 36px; height: 36px; background: linear-gradient(135deg, var(--brand), #818cf8); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 1.2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.2); overflow: hidden; }
-        .brand-logo img { width: 100%; height: 100%; object-fit: contain; }
         .brand-text { color: white; font-weight: 700; font-size: 1.2rem; letter-spacing: 0.5px; }
         .nav-menu { padding: 1.5rem 0; flex: 1; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
         .nav-item { padding: 0.8rem 1.5rem; margin: 0 0.8rem; border-radius: 8px; display: flex; align-items: center; gap: 12px; color: var(--sidebar-text); text-decoration: none; font-weight: 500; cursor: pointer; transition: 0.2s; font-size: 0.9rem; }
@@ -144,7 +135,6 @@
         .batch-table td { padding: 0.5rem; }
         .batch-input { width: 65px; padding: 0.4rem; text-align: center; font-family: monospace; font-size: 0.9rem; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); }
         .batch-input:focus { background: var(--card); border-color: var(--brand); box-shadow: 0 0 0 2px var(--brand-light); }
-        .bir-label { font-size: 0.7rem; color: var(--danger); font-weight: bold; background: var(--danger-bg); padding: 2px 6px; border-radius: 4px; margin-left: 5px; }
 
         .quick-actions { display: flex; gap: 1rem; margin-bottom: 2rem; background: var(--brand-light); padding: 1rem; border-radius: var(--radius); align-items: center; border: 1px dashed var(--brand); flex-wrap: wrap; }
 
@@ -155,7 +145,6 @@
         #loginOverlay { position: fixed; inset: 0; background: linear-gradient(135deg, var(--sidebar), #1e293b); z-index: 99990; display: flex; justify-content: center; align-items: center; padding: 1rem; }
         .login-box { background: var(--card); padding: 3rem; border-radius: 16px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
         .login-logo { width: 60px; height: 60px; background: var(--brand); color: white; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 800; margin: 0 auto 1.5rem auto; overflow: hidden; }
-        .login-logo img { width: 100%; height: 100%; object-fit: contain; }
         
         .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.8); z-index: 50000; justify-content: center; align-items: center; padding: 1rem; backdrop-filter: blur(4px); }
         .modal-content { background: var(--card); width: 100%; max-width: 650px; border-radius: 16px; padding: 2.5rem; position: relative; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto; }
@@ -248,7 +237,6 @@
             0% { background-position: 0% center; }
             100% { background-position: -200% center; }
         }
-
     </style>
 </head>
 <body>
@@ -256,7 +244,7 @@
     <div id="tutorialOverlay"></div>
 
     <div id="splashScreen">
-        <div class="splash-logo"><img src="assets/icon-192.png" onerror="this.style.display='none'" style="width:100%;height:100%;border-radius:20px;"></div>
+        <div class="splash-logo"><div style="font-size:2rem; font-weight:900;">DP</div></div>
         <h1 class="running-neon-text" style="font-size:1.8rem; letter-spacing:1px; margin-bottom:10px; font-weight:800;">⚡ DEGZ PULSE V35.5</h1>
         <p style="color:#94a3b8; font-size:0.9rem;">Enterprise Ops & CRM Dispatch</p>
         <div style="margin-top:40px; width:40px; height:40px; border:3px solid rgba(255,255,255,0.1); border-top-color:#4f46e5; border-radius:50%; animation:spin 1s linear infinite;"></div>
@@ -268,7 +256,7 @@
     <div id="aiGuardian">
         <div class="guardian-bubble" id="guardianMsg">Boss, system initialized. Ready for operations.</div>
         <div class="guardian-avatar-wrapper" id="guardianAvatarBtn" onclick="triggerSystemGuide()">
-            <img src="assets/logo.png" alt="AI" class="guardian-avatar" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\'guardian-avatar\'>👑</div>';">
+            <div class="guardian-avatar">👑</div>
         </div>
     </div>
 
@@ -277,7 +265,7 @@
 
     <div id="loginOverlay">
         <div class="login-box" style="position: relative; z-index: 2;">
-            <div class="login-logo"><img src="assets/icon-192.png" onerror="this.style.display='none';"></div>
+            <div class="login-logo"><div style="font-size:1.5rem;">DP</div></div>
             <h2 class="sys-title" style="margin-bottom:0.5rem; color:var(--brand); font-weight:800;">🔒 Degz Pulse V35.5</h2>
             <p class="text-muted" style="margin-bottom:2rem;">Fortress Secured Portal</p>
             
@@ -288,13 +276,13 @@
             <input type="text" id="loginId" placeholder="👤 USER ID" style="width:100%; padding:1rem; border:2px solid var(--border); border-radius:8px; text-align:center; font-size:1.1rem; margin-bottom:1rem; font-weight:600; text-transform: uppercase;" autocomplete="off">
             <input type="password" id="loginPass" placeholder="🔑 PASSWORD" style="width:100%; padding:1rem; border:2px solid var(--border); border-radius:8px; text-align:center; font-size:1.1rem; margin-bottom:1.5rem; font-weight:600;">
             <button class="btn btn-primary" style="width:100%; padding:1rem; font-size:1rem;" onclick="login()">🔓 Access System</button>
-            <div id="engineStatusTxt" class="text-muted" style="margin-top:1.5rem;">Initializing Secure Serverless Engine...</div>
+            <div id="engineStatusTxt" class="text-muted" style="margin-top:1.5rem;">Connecting to Vercel Endpoint...</div>
         </div>
     </div>
 
     <aside class="sidebar" id="sidebarAdmin" style="display:none;">
         <div class="brand">
-            <div class="brand-logo"><img src="assets/icon-192.png" onerror="this.style.display='none';"></div>
+            <div class="brand-logo"><div style="font-size:1rem;">DP</div></div>
             <div class="brand-text sys-company">Degz Pulse</div>
         </div>
         <div class="nav-menu">
@@ -356,7 +344,7 @@
                 <span class="text-muted" id="topbarDate"></span>
             </div>
             <div style="display:flex; gap:1rem; align-items:center;">
-                <div class="cloud-indicator" id="cloudStatusIndicator"><span class="pulse-dot"></span> Checking DB Vault...</div>
+                <div class="cloud-indicator" id="cloudStatusIndicator"><span class="pulse-dot"></span> Checking API Endpoint...</div>
             </div>
         </header>
 
@@ -498,6 +486,19 @@
         </div>
 
         <div id="view-attendance-admin" class="content-area admin-view">
+            <div class="card" style="border-left: 4px solid var(--warning); margin-bottom: 2rem;">
+                <div class="card-header"><div class="card-title">✍️ Manual Time Entry (Admin Bypass)</div></div>
+                <form onsubmit="manualAdminPunch(event)">
+                    <div class="grid-4">
+                        <div class="form-group"><label>Select Employee</label><select id="manEmp" required></select></div>
+                        <div class="form-group"><label>Log Date</label><input type="date" id="manDate" required></div>
+                        <div class="form-group"><label>Time In</label><input type="time" id="manTimeIn"></div>
+                        <div class="form-group"><label>Time Out</label><input type="time" id="manTimeOut"></div>
+                    </div>
+                    <div style="margin-top: 1.5rem; text-align: right;"><button type="submit" class="btn btn-warning" style="color:white;">💾 Save Manual Punch</button></div>
+                </form>
+            </div>
+
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">⏱️ Daily Bundy Clock Logs</div>
@@ -679,15 +680,19 @@
                     <div id="geoStatusTxt" style="font-size:0.75rem; color:var(--text-muted); margin-top:10px;"></div>
                 </div>
                 <div class="card">
-                    <div class="card-header"><div class="card-title">📊 Leave Balances</div></div>
-                    <div class="grid-2" style="margin-top:1rem;">
+                    <div class="card-header"><div class="card-title">📊 Balances Overview</div></div>
+                    <div class="grid-3" style="margin-top:1rem;">
                         <div style="text-align:center; padding:2rem 1rem; background:var(--brand-light); border-radius:12px; border:1px dashed var(--brand);">
                             <div style="font-size:2.5rem; font-weight:800; color:var(--brand);" id="myVlBal">0</div>
-                            <div style="font-size:0.85rem; font-weight:700; color:var(--brand-hover); text-transform:uppercase;">🌴 Vacation Leave</div>
+                            <div style="font-size:0.85rem; font-weight:700; color:var(--brand-hover); text-transform:uppercase;">🌴 VL Credits</div>
                         </div>
                         <div style="text-align:center; padding:2rem 1rem; background:var(--warning-bg); border-radius:12px; border:1px dashed var(--warning);">
                             <div style="font-size:2.5rem; font-weight:800; color:var(--warning);" id="mySlBal">0</div>
-                            <div style="font-size:0.85rem; font-weight:700; color:#b45309; text-transform:uppercase;">🤒 Sick Leave</div>
+                            <div style="font-size:0.85rem; font-weight:700; color:#b45309; text-transform:uppercase;">🤒 SL Credits</div>
+                        </div>
+                        <div style="text-align:center; padding:2rem 1rem; background:var(--danger-bg); border-radius:12px; border:1px dashed var(--danger);">
+                            <div style="font-size:1.8rem; font-weight:800; color:var(--danger); margin-top:10px; margin-bottom:5px;" id="myLoanBal">₱ 0.00</div>
+                            <div style="font-size:0.85rem; font-weight:700; color:#b91c1c; text-transform:uppercase;">💸 Vale Balance</div>
                         </div>
                     </div>
                 </div>
@@ -837,11 +842,8 @@
     <div id="printCanvas" style="display:none;"></div>
 
     <script>
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwXGN8sBJNVtDCV49mjEljEAtAiwIEv6_XnDpyY9zJKFljUmQXPf1vHMhI1Tyx8E3bC3w/exec";
-
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js').catch(err => console.error(err));
-        }
+        // 🚨🚨🚨 ILAGAY DITO ANG APPS SCRIPT WEB APP URL MO 🚨🚨🚨
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbwqONAMsA4Uj9Nd4G6lw-zcBVwPDbp_3aq0ylU-p1Q9zWCSBgRx_yifBNrPGSFueLUFTQ/exec";
 
         let db = {
             settings: { comp: "Degz Pulse Enterprise", tin: "000-000-000", days: 22, hrs: 8, otRate: 1.25, adminPass: "ADMIN", geoEnabled: "false", geoLat: "", geoLng: "", geoRad: 100, shiftIn: "08:00", shiftOut: "17:00" },
@@ -850,12 +852,10 @@
         let batchData = []; let currentUserRole = null; let currentUserId = null; let loginAttempts = 0;
 
         document.getElementById('topbarDate').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-
         setTimeout(() => { document.getElementById('splashScreen').style.opacity = '0'; setTimeout(() => document.getElementById('splashScreen').style.display = 'none', 600); }, 2000);
 
         document.addEventListener('contextmenu', e => e.preventDefault());
         document.addEventListener('keydown', e => { if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) || (e.ctrlKey && e.keyCode === 85)) { guardianSpeak("Security Trap: Action Denied.", "error"); e.preventDefault(); return false; } });
-
         setInterval(() => { let before = new Date().getTime(); debugger; let after = new Date().getTime(); if (after - before > 100) { document.body.innerHTML = "<div style='display:flex; height:100vh; background:#0f172a; color:#ef4444; justify-content:center; align-items:center; font-family:monospace; font-size:2rem; font-weight:bold;'>Security Trap Dynamic Halt.</div>"; } }, 1000);
 
         function sanitizeInput(str) {
@@ -886,30 +886,63 @@
             } catch (err) {}
         }
 
+        // VERCEL-READY SAVE DB (CORS BYPASS)
         async function saveDB(actionStr = "Auto-Save") {
             if(!db.auditTrail) db.auditTrail = []; db.auditTrail.push({ time: new Date().toISOString(), user: currentUserId || 'System', action: actionStr });
             let ind = document.getElementById('cloudStatusIndicator');
+            
             try {
                 const idb = await initIndexedDB(); const tx = idb.transaction(STORE_NAME, 'readwrite'); const store = tx.objectStore(STORE_NAME); store.put(db, 'systemData');
-                if (GAS_WEB_APP_URL && GAS_WEB_APP_URL !== "") {
-                    const res = await fetch(GAS_WEB_APP_URL, { 
-                        method: 'POST', 
-                        body: JSON.stringify(db), 
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        redirect: 'follow' 
-                    });
-                    
-                    if(res.ok) { 
-                        if(ind) { ind.innerHTML = '🟢 Synced to Cloud'; ind.style.borderColor = 'var(--success)'; ind.style.color = 'var(--success)'; } 
-                    } else { throw new Error(); }
-                } else { 
-                    if(ind) { ind.innerHTML = '🟢 Vault Connected (Local)'; ind.style.borderColor = 'var(--info)'; ind.style.color = 'var(--info)'; } 
-                }
-            } catch(e) { 
-                if(ind) { ind.innerHTML = '⚠️ Offline Mode (Saved Locally)'; ind.style.borderColor = 'var(--warning)'; ind.style.color = 'var(--warning)'; } 
-                showToast("Offline save confirmed.", "warning"); 
+            } catch(e) {}
+
+            if (GAS_URL && GAS_URL !== "" && GAS_URL !== "ILAGAY_MO_DITO_ANG_WEB_APP_URL_NA_NAG_UUMPISA_SA_SCRIPT.GOOGLE.COM") {
+                fetch(GAS_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(db)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        if(ind) { ind.innerHTML = '🟢 Synced to Cloud API'; ind.style.borderColor = 'var(--success)'; ind.style.color = 'var(--success)'; }
+                    }
+                })
+                .catch(err => {
+                    if(ind) { ind.innerHTML = '⚠️ Offline Mode (Saved Locally)'; ind.style.borderColor = 'var(--warning)'; ind.style.color = 'var(--warning)'; }
+                    showToast("Offline save confirmed. Check internet connection.", "warning");
+                });
+            } else {
+                if(ind) { ind.innerHTML = '🟢 Vault Connected (Local)'; ind.style.borderColor = 'var(--info)'; ind.style.color = 'var(--info)'; }
             }
         }
+
+        // VERCEL-READY INIT ENGINE
+        async function initEngine() {
+            if (GAS_URL && GAS_URL !== "" && GAS_URL !== "ILAGAY_MO_DITO_ANG_WEB_APP_URL_NA_NAG_UUMPISA_SA_SCRIPT.GOOGLE.COM") {
+                fetch(GAS_URL)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && Object.keys(data).length > 0) {
+                        db = { ...db, ...data };
+                        if (!db.salesRecords) db.salesRecords = []; if (!db.dispatchRecords) db.dispatchRecords = [];
+                        applyWhiteLabel();
+                        let ind = document.getElementById('cloudStatusIndicator');
+                        ind.innerHTML = '<span class="pulse-dot"></span> Synced to Cloud API';
+                        ind.style.borderColor = 'var(--success)';
+                        ind.style.color = 'var(--success)';
+                        document.getElementById('engineStatusTxt').innerText = "Connected to Vercel-GAS API.";
+                    } else {
+                        loadLocal();
+                    }
+                })
+                .catch(err => {
+                    loadLocal();
+                });
+            } else {
+                loadLocal();
+            }
+        }
+        
+        initEngine();
 
         let map; let marker;
         function openMapModal() {
@@ -951,9 +984,6 @@
         function showToast(message, type = 'success') { const container = document.getElementById('toast-container'); const toast = document.createElement('div'); toast.className = `toast ${type}`; let icon = type === 'error' ? '❌' : (type === 'warning' ? '⚠️' : '✅'); toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`; container.appendChild(toast); setTimeout(() => toast.classList.add('show'), 10); setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000); }
         function showLoader(show) { document.getElementById('apiLoader').style.display = show ? 'flex' : 'none'; }
 
-        async function initEngine() { if (GAS_WEB_APP_URL && GAS_WEB_APP_URL !== "") { try { let res = await fetch(GAS_WEB_APP_URL); let data = await res.json(); if (data && Object.keys(data).length > 0) { db = { ...db, ...data }; if (!db.salesRecords) db.salesRecords = []; if (!db.dispatchRecords) db.dispatchRecords = []; applyWhiteLabel(); let ind = document.getElementById('cloudStatusIndicator'); ind.innerHTML = '<span class="pulse-dot"></span> Synced to Cloud'; ind.style.borderColor = 'var(--success)'; ind.style.color = 'var(--success)'; document.getElementById('engineStatusTxt').innerText = "Connected to Cloud Engine."; } } catch(e) { loadLocal(); } } else { loadLocal(); } }
-        initEngine();
-
         function fM(n) { return "₱ " + parseFloat(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}); }
         function fN(n) { return parseFloat(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}); }
         function r2(n) { return Math.round((n + Number.EPSILON) * 100) / 100; }
@@ -967,7 +997,71 @@
 
         function openPassModal() { document.getElementById('cpOld').value = ''; document.getElementById('cpNew').value = ''; document.getElementById('cpConfirm').value = ''; document.getElementById('passModal').style.display = 'flex'; }
         function updatePassword(e) { e.preventDefault(); const oldP = sanitizeInput(document.getElementById('cpOld').value); const newP = sanitizeInput(document.getElementById('cpNew').value); const confP = sanitizeInput(document.getElementById('cpConfirm').value); if(newP !== confP) return showToast("Mismatched new strings.", "error"); if(currentUserRole === 'admin') { const sysPass = db.settings.adminPass || 'ADMIN'; if(oldP !== sysPass) return showToast("Invalid string verification.", "error"); db.settings.adminPass = newP; } else { const emp = db.employees.find(e => e.id === currentUserId); const empPass = emp.pass || '123456'; if(oldP !== empPass) return showToast("Invalid string verification.", "error"); emp.pass = newP; } saveDB("Password Update"); document.getElementById('passModal').style.display = 'none'; showToast("Credentials secured.", "success"); }
-        function switchView(id, el, role) { document.querySelectorAll(`.${role}-view`).forEach(c => c.classList.remove('active')); document.querySelectorAll(`#sidebar${role==='admin'?'Admin':'Emp'} .nav-item`).forEach(n => n.classList.remove('active')); document.getElementById(id).classList.add('active'); el.classList.add('active'); document.getElementById('topbarTitle').innerText = el.innerText.trim(); if(role === 'admin') refreshAdminUI(); else refreshEmpUI(); }
+        
+        function switchView(id, el, role) { 
+            document.querySelectorAll(`.${role}-view`).forEach(c => c.classList.remove('active')); 
+            document.querySelectorAll(`#sidebar${role==='admin'?'Admin':'Emp'} .nav-item`).forEach(n => n.classList.remove('active')); 
+            document.getElementById(id).classList.add('active'); 
+            el.classList.add('active'); 
+            document.getElementById('topbarTitle').innerText = el.innerText.trim(); 
+            if(id === 'view-attendance-admin') {
+                document.getElementById('manDate').value = new Date().toISOString().split('T')[0];
+            }
+            if(role === 'admin') refreshAdminUI(); 
+            else refreshEmpUI(); 
+        }
+
+        function manualAdminPunch(e) {
+            e.preventDefault();
+            const empId = document.getElementById('manEmp').value;
+            const logDate = document.getElementById('manDate').value;
+            if(!empId || !logDate) return showToast("Select employee and date.", "warning");
+            
+            const dateParts = logDate.split('-'); 
+            const formattedDate = `${parseInt(dateParts[1])}/${parseInt(dateParts[2])}/${dateParts[0]}`; 
+            
+            const timeInVal = document.getElementById('manTimeIn').value; 
+            const timeOutVal = document.getElementById('manTimeOut').value; 
+            
+            if(!timeInVal && !timeOutVal) return showToast("Provide at least Time In or Time Out.", "warning");
+
+            const formatAmPm = (timeStr) => {
+                if(!timeStr) return null;
+                let [h, m] = timeStr.split(':');
+                let hours = parseInt(h, 10);
+                let ampm = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12;
+                hours = hours ? hours : 12; 
+                let mStr = m.length < 2 ? '0'+m : m;
+                let hStr = hours < 10 ? '0'+hours : hours;
+                return `${hStr}:${mStr} ${ampm}`;
+            };
+
+            const tInFormatted = formatAmPm(timeInVal);
+            const tOutFormatted = formatAmPm(timeOutVal);
+
+            let log = db.bundyLogs.find(l => l.empId === empId && l.date === formattedDate);
+            let inMsVal = timeInVal ? new Date(`${logDate}T${timeInVal}:00`).getTime() : null;
+            let outMsVal = timeOutVal ? new Date(`${logDate}T${timeOutVal}:00`).getTime() : null;
+            
+            let calcHrs = 0;
+            
+            if(log) {
+                if(tInFormatted) { log.timeIn = tInFormatted; log.inMs = inMsVal; }
+                if(tOutFormatted) { log.timeOut = tOutFormatted; log.outMs = outMsVal; }
+                if(log.inMs && log.outMs) { log.hrs = r2((log.outMs - log.inMs) / (1000 * 60 * 60)); }
+                log.unlocked = false;
+                showToast("Existing log updated.", "success");
+            } else {
+                if(inMsVal && outMsVal) calcHrs = r2((outMsVal - inMsVal) / (1000 * 60 * 60));
+                db.bundyLogs.push({ empId: empId, date: formattedDate, timeIn: tInFormatted, inMs: inMsVal, timeOut: tOutFormatted, outMs: outMsVal, hrs: calcHrs, unlocked: false });
+                showToast("New manual log created.", "success");
+            }
+            
+            saveDB(`Admin Manual Punch: ${empId}`);
+            refreshAdminUI();
+            e.target.reset();
+        }
 
         function postDispatch(e) { e.preventDefault(); if(!db.dispatchRecords) db.dispatchRecords = []; let record = { id: "DSP-" + Date.now(), assignee: document.getElementById('dispatchAssignee').value, priority: document.getElementById('dispatchPriority').value, date: document.getElementById('dispatchDate').value, details: sanitizeInput(document.getElementById('dispatchDetails').value), status: "Pending", issuedBy: currentUserId || 'Admin' }; db.dispatchRecords.push(record); saveDB("Dispatch Created"); e.target.reset(); showToast("Dispatch log written.", "success"); refreshAdminUI(); }
         function updateDispatchStatus(id, newStatus) { let task = db.dispatchRecords.find(t => t.id === id); if(task) { task.status = newStatus; saveDB(`Dispatch Update: ${newStatus}`); showToast("State transition logged.", "success"); refreshEmpUI(); } }
@@ -1027,8 +1121,11 @@
             document.getElementById('dashHeadcount').innerText = db.employees.length; document.getElementById('dashTotalPayroll').innerText = fM(db.payroll.reduce((sum, p) => sum + p.net, 0)); document.getElementById('dashLoans').innerText = fM(db.loans.filter(l => l.balance > 0).reduce((sum, l) => sum + l.balance, 0));
             const badge = document.getElementById('pendingLeaveBadge'); const pendingLeaves = db.leaves.filter(l => l.status === 'Pending').length; if(pendingLeaves > 0) { badge.style.display = 'block'; badge.innerText = pendingLeaves; } else { badge.style.display = 'none'; }
             let dashRecent = document.getElementById('dashRecentBody'); let periodsRecord = {}; db.payroll.forEach(p => { if(!periodsRecord[p.period]) periodsRecord[p.period] = { count: 0, total: 0 }; periodsRecord[p.period].count++; periodsRecord[p.period].total += p.net; }); dashRecent.innerHTML = ''; let pKeys = Object.keys(periodsRecord).reverse().slice(0, 5); if(pKeys.length === 0) { dashRecent.innerHTML = '<tr><td colspan="3"><div class="empty-state">No transaction logs.</div></td></tr>'; } else { pKeys.forEach(k => { dashRecent.innerHTML += `<tr><td><strong>${k}</strong></td><td>💼 ${periodsRecord[k].count} Processed</td><td class="val-num" style="color:var(--success);">${fM(periodsRecord[k].total)}</td></tr>`; }); }
-            let eB = document.getElementById('empTableBody'); eB.innerHTML=''; let selL = document.getElementById('loanEmp'); selL.innerHTML='<option value="">-- Select --</option>';
-            if(db.employees.length === 0) { eB.innerHTML = `<tr><td colspan="6"><div class="empty-state">Masterlist null.</div></td></tr>`; } else { db.employees.forEach(e => { const tBadge = e.type === 'Job Order' ? '<span class="badge badge-warning">⚠️ Job Order</span>' : '<span class="badge badge-success">💼 Regular</span>'; const ruleBadge = (e.strictTime === 'true' || e.strictTime === true) ? '<span class="badge badge-strict">⏱️ Strict</span>' : ''; let roleStr = e.crmAccess || 'Standard'; let crmBadge = ''; if(roleStr === 'Admin' || roleStr === 'true' || roleStr === true) crmBadge = '<span class="badge badge-info">👑 Admin</span>'; else if(roleStr === 'Foreman') crmBadge = '<span class="badge" style="background:#f97316; color:white;">👷‍♂️ Foreman</span>'; eB.innerHTML += `<tr><td><span class="badge badge-info">${e.id}</span></td><td><strong>${e.name}</strong><br>${tBadge} ${ruleBadge} ${crmBadge}</td><td><span>${e.cycle}</span></td><td class="val-num">${fM(e.base)}</td><td class="val-num">SSS: ${e.sssC||0} | PH: ${e.phicC||0} | HDMF: ${e.hdmfC||0}</td><td style="text-align:center;"><button class="btn btn-icon" onclick="editEmployee('${e.id}')">✏️</button><button class="btn btn-icon" onclick="deleteEmp('${e.id}')">🗑️</button></td></tr>`; selL.innerHTML += `<option value="${e.id}">${e.name}</option>`; }); }
+            let eB = document.getElementById('empTableBody'); eB.innerHTML=''; 
+            let selL = document.getElementById('loanEmp'); selL.innerHTML='<option value="">-- Select --</option>';
+            let selMan = document.getElementById('manEmp'); if(selMan) selMan.innerHTML='<option value="">-- Select --</option>';
+
+            if(db.employees.length === 0) { eB.innerHTML = `<tr><td colspan="6"><div class="empty-state">Masterlist null.</div></td></tr>`; } else { db.employees.forEach(e => { const tBadge = e.type === 'Job Order' ? '<span class="badge badge-warning">⚠️ Job Order</span>' : '<span class="badge badge-success">💼 Regular</span>'; const ruleBadge = (e.strictTime === 'true' || e.strictTime === true) ? '<span class="badge badge-strict">⏱️ Strict</span>' : ''; let roleStr = e.crmAccess || 'Standard'; let crmBadge = ''; if(roleStr === 'Admin' || roleStr === 'true' || roleStr === true) crmBadge = '<span class="badge badge-info">👑 Admin</span>'; else if(roleStr === 'Foreman') crmBadge = '<span class="badge" style="background:#f97316; color:white;">👷‍♂️ Foreman</span>'; eB.innerHTML += `<tr><td><span class="badge badge-info">${e.id}</span></td><td><strong>${e.name}</strong><br>${tBadge} ${ruleBadge} ${crmBadge}</td><td><span>${e.cycle}</span></td><td class="val-num">${fM(e.base)}</td><td class="val-num">SSS: ${e.sssC||0} | PH: ${e.phicC||0} | HDMF: ${e.hdmfC||0}</td><td style="text-align:center;"><button class="btn btn-icon" onclick="editEmployee('${e.id}')">✏️</button><button class="btn btn-icon" onclick="deleteEmp('${e.id}')">🗑️</button></td></tr>`; selL.innerHTML += `<option value="${e.id}">${e.name}</option>`; if(selMan) selMan.innerHTML += `<option value="${e.id}">${e.name}</option>`; }); }
             let ab = document.getElementById('adminBundyBody'); ab.innerHTML = '';
             if(db.bundyLogs.length === 0) { ab.innerHTML = `<tr><td colspan="7"><div class="empty-state">No entry blocks found.</div></td></tr>`; } else { [...db.bundyLogs].reverse().forEach(l => { const e = db.employees.find(x => x.id === l.empId); const stats = e ? calcBundyStats(e, l) : { lateMins:0, lateDed:0, otHrs:0, otPay:0 }; const isLocked = l.timeOut && !l.unlocked; const actBtn = isLocked ? `<button class="btn btn-warning" style="padding:4px 8px;" onclick="unlockBundy('${l.empId}', '${l.date}')">🔓 Unlock</button>` : `<span class="badge badge-success">✅ Valid</span>`; let lateHtml = stats.lateMins > 0 ? `<span style="color:var(--danger); font-weight:bold;">${stats.lateMins} mins</span><br><small style="color:darkred;">-₱${fN(stats.lateDed)}</small>` : `<span class="text-muted">0 mins</span>`; let otHtml = stats.otHrs > 0 ? `<span style="color:var(--success); font-weight:bold;">${stats.otHrs} hrs</span><br><small style="color:darkgreen;">+₱${fN(stats.otPay)}</small>` : `<span class="text-muted">0 hrs</span>`; ab.innerHTML += `<tr><td>${l.date}</td><td><strong>${e?e.name:l.empId}</strong></td><td><span class="badge badge-success">📥 ${l.timeIn}</span></td><td>${l.timeOut ? `<span class="badge badge-danger">📤 ${l.timeOut}</span>` : '-'}</td><td>${lateHtml}</td><td>${otHtml}</td><td>${actBtn}</td></tr>`; }); }
             let lB = document.getElementById('loanTableBody'); lB.innerHTML='';
@@ -1044,6 +1141,11 @@
         function refreshEmpUI() {
             const emp = db.employees.find(e => e.id === currentUserId); if(!emp) return;
             document.getElementById('myVlBal').innerText = emp.vl || 0; document.getElementById('mySlBal').innerText = emp.sl || 0;
+            
+            let totalLoanBal = db.loans.filter(l => l.empId === emp.id && l.balance > 0).reduce((sum, l) => sum + l.balance, 0);
+            let loanBalEl = document.getElementById('myLoanBal');
+            if(loanBalEl) loanBalEl.innerText = fM(totalLoanBal);
+            
             const shiftDate = getLogicalDate(); const todayLog = db.bundyLogs.find(l => l.empId === emp.id && l.date === shiftDate); const btn = document.getElementById('bundyBtn'); const stat = document.getElementById('bundyStatus'); btn.classList.remove('locked', 'active'); btn.style.borderColor = "";
             if(!todayLog) { stat.innerText = "📥 Time In"; stat.style.color = "var(--brand)"; } else if(todayLog && !todayLog.timeOut) { btn.classList.add('active'); stat.innerText = "📤 Time Out"; stat.style.color = "var(--success)"; } else if(todayLog.timeOut && !todayLog.unlocked) { btn.classList.add('locked'); stat.innerText = "🔒 Account Locked"; stat.style.color = "var(--danger)"; } else { stat.innerText = "📥 Time In (Unlocked)"; stat.style.color = "var(--warning)"; }
             let bb = document.getElementById('myBundyBody'); bb.innerHTML = ''; const myLogs = db.bundyLogs.filter(l => l.empId === emp.id).reverse();
