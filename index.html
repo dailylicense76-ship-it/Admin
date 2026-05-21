@@ -236,18 +236,18 @@
             .print-payroll-table tr.total-row { font-weight: bold; background-color: #ddd !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
      
-             .running-neon-text {
-    background: linear-gradient(90deg, #ffd700, #39ff14, #ffd700);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: neonRun 2s linear infinite;
-}
+        .running-neon-text {
+            background: linear-gradient(90deg, #ffd700, #39ff14, #ffd700);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: neonRun 2s linear infinite;
+        }
 
-@keyframes neonRun {
-    0% { background-position: 0% center; }
-    100% { background-position: -200% center; }
-}
+        @keyframes neonRun {
+            0% { background-position: 0% center; }
+            100% { background-position: -200% center; }
+        }
 
     </style>
 </head>
@@ -578,9 +578,9 @@
                 
                 <div class="table-wrapper">
                     <table class="batch-table" id="batchTable">
-                        <thead><tr><th style="min-width:160px;">Employee Profile</th><th>Work Days</th><th>Reg OT (hrs)</th><th>ND/Hol (hrs)</th><th>Bonus</th><th>Food</th><th>Lates/UT</th><th style="color:var(--warning)">Other Chg</th><th style="color:var(--danger)">SSS/PH/HDMF</th><th style="color:var(--danger)">W.Tax</th><th>Gross Pay</th><th>Net Take Home</th></tr></thead>
+                        <thead><tr><th style="min-width:160px;">Employee Profile</th><th>Work Days</th><th>Reg OT (hrs)</th><th>ND/Hol (hrs)</th><th>Bonus</th><th>Food</th><th>Lates/UT</th><th style="color:var(--danger)">Loans/Vales</th><th style="color:var(--warning)">Other Chg</th><th style="color:var(--danger)">SSS/PH/HDMF</th><th style="color:var(--danger)">W.Tax</th><th>Gross Pay</th><th>Net Take Home</th></tr></thead>
                         <tbody id="batchBody">
-                            <tr><td colspan="12"><div class="empty-state">Select settings and click Generate.</div></td></tr>
+                            <tr><td colspan="13"><div class="empty-state">Select settings and click Generate.</div></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -892,11 +892,23 @@
             try {
                 const idb = await initIndexedDB(); const tx = idb.transaction(STORE_NAME, 'readwrite'); const store = tx.objectStore(STORE_NAME); store.put(db, 'systemData');
                 if (GAS_WEB_APP_URL && GAS_WEB_APP_URL !== "") {
-                    const secureHeaders = { 'Content-Type': 'text/plain;charset=utf-8', 'X-Degz-Auth': btoa(Date.now().toString()) };
-                    const res = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify(db), headers: secureHeaders });
-                    if(res.ok) { if(ind) { ind.innerHTML = '🟢 Synced to Cloud'; ind.style.borderColor = 'var(--success)'; ind.style.color = 'var(--success)'; } } else { throw new Error(); }
-                } else { if(ind) { ind.innerHTML = '🟢 Vault Connected (Local)'; ind.style.borderColor = 'var(--info)'; ind.style.color = 'var(--info)'; } }
-            } catch(e) { if(ind) { ind.innerHTML = '⚠️ Offline Mode (Saved Locally)'; ind.style.borderColor = 'var(--warning)'; ind.style.color = 'var(--warning)'; } showToast("Offline save confirmed.", "warning"); }
+                    const res = await fetch(GAS_WEB_APP_URL, { 
+                        method: 'POST', 
+                        body: JSON.stringify(db), 
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        redirect: 'follow' 
+                    });
+                    
+                    if(res.ok) { 
+                        if(ind) { ind.innerHTML = '🟢 Synced to Cloud'; ind.style.borderColor = 'var(--success)'; ind.style.color = 'var(--success)'; } 
+                    } else { throw new Error(); }
+                } else { 
+                    if(ind) { ind.innerHTML = '🟢 Vault Connected (Local)'; ind.style.borderColor = 'var(--info)'; ind.style.color = 'var(--info)'; } 
+                }
+            } catch(e) { 
+                if(ind) { ind.innerHTML = '⚠️ Offline Mode (Saved Locally)'; ind.style.borderColor = 'var(--warning)'; ind.style.color = 'var(--warning)'; } 
+                showToast("Offline save confirmed.", "warning"); 
+            }
         }
 
         let map; let marker;
@@ -1055,21 +1067,66 @@
             logs.forEach(log => { let logDate = new Date(log.date); if(logDate >= start && logDate <= end && log.timeIn) { if(log.timeOut && log.hrs < 1) return; days++; if(isStrict && log.timeOut) { let actualInMins = getMins(log.timeIn); let actualOutMins = getMins(log.timeOut); if(actualInMins > shiftInMins) lateUTMins += (actualInMins - shiftInMins); if(actualOutMins < shiftOutMins) lateUTMins += (shiftOutMins - actualOutMins); let dailyOTMins = 0; if(actualInMins < shiftInMins) dailyOTMins += (shiftInMins - actualInMins); if(actualOutMins > shiftOutMins) dailyOTMins += (actualOutMins - shiftOutMins); otHrs += Math.floor(dailyOTMins / 60); } } }); return { days, otHrs, lateUTMins };
         }
 
+        function calcFoodAllowance(baseFood, days) {
+            let fullDays = Math.floor(days);
+            let hasHalfDay = (days % 1) !== 0; 
+            let total = fullDays * baseFood;
+            if (hasHalfDay) {
+                if (baseFood === 30) {
+                    total += 0;
+                } else if (baseFood === 80) {
+                    total += 50;
+                } else {
+                    total += (baseFood / 2);
+                }
+            }
+            return total;
+        }
+
+        function updateDaysInput(i, baseFood) {
+            const row = document.getElementById(`bRow-${i}`);
+            if(row) {
+                const days = parseFloat(row.querySelector('.b-days').value) || 0;
+                row.querySelector('.b-food').value = calcFoodAllowance(baseFood, days);
+                if(days > 0) {
+                    row.querySelector('.b-days').style.borderColor = 'var(--success)';
+                    row.querySelector('.b-days').style.background = 'var(--success-bg)';
+                } else {
+                    row.querySelector('.b-days').style.borderColor = 'var(--border)';
+                    row.querySelector('.b-days').style.background = 'var(--bg)';
+                }
+                compRow(i);
+            }
+        }
+
         function loadBatchTable() {
             const cycle = document.getElementById('batchCycle').value; const sDate = document.getElementById('batchStart').value; const eDate = document.getElementById('batchEnd').value; const tb = document.getElementById('batchBody');
-            if(!sDate || !eDate) return showToast("Target dates empty.", "warning"); batchData = db.employees.filter(e => e.cycle === cycle); if(batchData.length === 0) { tb.innerHTML = `<tr><td colspan="12"><div class="empty-state">No structural matching.</div></td></tr>`; return; } tb.innerHTML = ''; let totalFetched = 0;
+            if(!sDate || !eDate) return showToast("Target dates empty.", "warning"); batchData = db.employees.filter(e => e.cycle === cycle); if(batchData.length === 0) { tb.innerHTML = `<tr><td colspan="13"><div class="empty-state">No structural matching.</div></td></tr>`; return; } tb.innerHTML = ''; let totalFetched = 0;
+            
+            document.getElementById('batchTable').querySelector('thead tr').innerHTML = `<th style="min-width:160px;">Employee Profile</th><th>Work Days</th><th>Reg OT (hrs)</th><th>ND/Hol (hrs)</th><th>Bonus</th><th>Food</th><th>Lates/UT</th><th style="color:var(--danger)">Loans/Vales</th><th style="color:var(--warning)">Other Chg</th><th style="color:var(--danger)">SSS/PH/HDMF</th><th style="color:var(--danger)">W.Tax</th><th>Gross Pay</th><th>Net Take Home</th>`;
+
             batchData.forEach((emp, i) => {
                 const attData = getStrictAttendanceData(emp, sDate, eDate); if(attData.days > 0) totalFetched++; const isStrict = (emp.strictTime === 'true' || emp.strictTime === true); const latesStyle = isStrict ? 'border-color:#db2777; background:#fdf2f8;' : ''; const latesTitle = isStrict ? 'Filled Mins' : 'Enter Rate'; const latesPlaceholder = isStrict ? 'Mins' : '₱'; const defaultLates = isStrict ? attData.lateUTMins : 0; const defaultOT = isStrict ? attData.otHrs : 0;
-                tb.innerHTML += `<tr id="bRow-${i}"><td><strong class="truncate" style="display:block;max-width:150px;">👤 ${emp.name}</strong><span style="font-size:0.7rem; color:var(--text-muted);">${emp.type==='Job Order'?fM(emp.base)+'/d':fM(emp.base/db.settings.days)+'/d'} ${isStrict?'⏱️':''}</span></td><td><input type="number" class="batch-input b-days" value="${attData.days}" step="0.5" oninput="compRow(${i})" ${attData.days > 0 ? 'style="border-color:var(--success); background:var(--success-bg);"' : ''}></td><td><input type="number" class="batch-input b-ot" value="${defaultOT}" step="0.5" oninput="compRow(${i})"></td><td><input type="number" class="batch-input b-ndhol" value="0" step="0.5" oninput="compRow(${i})"></td><td><input type="number" class="batch-input b-bonus" value="0" step="0.01" oninput="compRow(${i})"></td><td><input type="number" class="batch-input b-food" value="${emp.food || 0}" step="0.01" oninput="compRow(${i})"></td><td><input type="number" class="batch-input b-lates" value="${defaultLates}" step="1" oninput="compRow(${i})" style="${latesStyle}" title="${latesTitle}" placeholder="${latesPlaceholder}"></td><td><input type="number" class="batch-input b-charges" value="0" step="0.01" oninput="compRow(${i})" style="border-color:var(--warning);"></td><td class="td-money b-gov" style="color:var(--danger); font-family:monospace;">0.00</td><td class="td-money b-tax" style="color:var(--danger); font-weight:bold; font-family:monospace;">0.00</td><td class="td-money b-gross" style="color:var(--success); font-family:monospace;">0.00</td><td class="td-money b-net" style="color:var(--brand); font-size:1.05rem; font-weight:800; font-family:monospace;">0.00</td></tr>`; compRow(i);
+                
+                let defaultLoan = 0;
+                db.loans.filter(l => l.empId === emp.id && l.balance > 0).forEach(l => { defaultLoan += Math.min(l.ded, l.balance); });
+                
+                const defaultFood = calcFoodAllowance(emp.food || 0, attData.days);
+
+                tb.innerHTML += `<tr id="bRow-${i}"><td><strong class="truncate" style="display:block;max-width:150px;">👤 ${emp.name}</strong><span style="font-size:0.7rem; color:var(--text-muted);">${emp.type==='Job Order'?fM(emp.base)+'/d':fM(emp.base/db.settings.days)+'/d'} ${isStrict?'⏱️':''}</span></td><td><input type="number" class="batch-input b-days" value="${attData.days}" step="0.5" oninput="updateDaysInput(${i}, ${emp.food || 0})" ${attData.days > 0 ? 'style="border-color:var(--success); background:var(--success-bg);"' : ''}></td><td><input type="number" class="batch-input b-ot" value="${defaultOT}" step="0.5" oninput="compRow(${i})"></td><td><input type="number" class="batch-input b-ndhol" value="0" step="0.5" oninput="compRow(${i})"></td><td><input type="number" class="batch-input b-bonus" value="0" step="0.01" oninput="compRow(${i})"></td><td><input type="number" class="batch-input b-food" value="${defaultFood}" step="0.01" oninput="compRow(${i})"></td><td><input type="number" class="batch-input b-lates" value="${defaultLates}" step="1" oninput="compRow(${i})" style="${latesStyle}" title="${latesTitle}" placeholder="${latesPlaceholder}"></td><td><input type="number" class="batch-input b-loans" value="${defaultLoan}" step="0.01" oninput="compRow(${i})" style="border-color:var(--danger);"></td><td><input type="number" class="batch-input b-charges" value="0" step="0.01" oninput="compRow(${i})" style="border-color:var(--warning);"></td><td class="td-money b-gov" style="color:var(--danger); font-family:monospace;">0.00</td><td class="td-money b-tax" style="color:var(--danger); font-weight:bold; font-family:monospace;">0.00</td><td class="td-money b-gross" style="color:var(--success); font-family:monospace;">0.00</td><td class="td-money b-net" style="color:var(--brand); font-size:1.05rem; font-weight:800; font-family:monospace;">0.00</td></tr>`; compRow(i);
             }); showToast("State generation run confirmed.", 'success');
         }
 
         function compRow(i) {
             const emp = batchData[i]; const row = document.getElementById(`bRow-${i}`); const forceGovt = document.getElementById('applyGovt').value === 'true'; const isJO = emp.type === 'Job Order'; const isStrict = (emp.strictTime === 'true' || emp.strictTime === true);
-            const days = parseFloat(row.querySelector('.b-days').value)||0; let otInput = parseFloat(row.querySelector('.b-ot').value)||0; const ndhol = parseFloat(row.querySelector('.b-ndhol').value)||0; const bonus = parseFloat(row.querySelector('.b-bonus').value)||0; const food = parseFloat(row.querySelector('.b-food').value)||0; const latesInput = parseFloat(row.querySelector('.b-lates').value)||0; const charges = parseFloat(row.querySelector('.b-charges').value)||0; 
+            const days = parseFloat(row.querySelector('.b-days').value)||0; let otInput = parseFloat(row.querySelector('.b-ot').value)||0; const ndhol = parseFloat(row.querySelector('.b-ndhol').value)||0; const bonus = parseFloat(row.querySelector('.b-bonus').value)||0; const food = parseFloat(row.querySelector('.b-food').value)||0; const latesInput = parseFloat(row.querySelector('.b-lates').value)||0; 
+            const loanDeduct = parseFloat(row.querySelector('.b-loans').value)||0; 
+            const charges = parseFloat(row.querySelector('.b-charges').value)||0; 
+            
             const dailyRate = isJO ? emp.base : (emp.base / db.settings.days); const hourly = dailyRate / db.settings.hrs; const basic = dailyRate * days; const ndPay = ndhol * hourly * 1.5; 
             let latesDeduction = 0; let otPay = 0; if(isStrict) { const perMinute = hourly / 60; latesDeduction = r2(latesInput * perMinute); otInput = Math.floor(otInput); otPay = otInput * hourly * db.settings.otRate; } else { latesDeduction = latesInput; otPay = otInput * hourly * db.settings.otRate; }
-            const gross = r2(basic + otPay + ndPay + bonus + (emp.allow||0) + food); let loanDeduct = 0; db.loans.filter(l => l.empId === emp.id && l.balance > 0).forEach(l => { loanDeduct += Math.min(l.ded, l.balance); });
+            const gross = r2(basic + otPay + ndPay + bonus + (emp.allow||0) + food); 
+            
             let sss=0, phic=0, hdmf=0, tax=0; if(forceGovt && !isJO) { sss = emp.sssC || 0; phic = emp.phicC || 0; hdmf = emp.hdmfC || 0; let taxableIncome = gross - ((emp.allow||0) + food + sss + phic + hdmf + latesDeduction); if(taxableIncome > 0) { if(taxableIncome <= 10417) { tax = 0; } else if(taxableIncome <= 16666) { tax = (taxableIncome - 10417) * 0.15; } else if(taxableIncome <= 33332) { tax = 937.50 + ((taxableIncome - 16666) * 0.20); } else if(taxableIncome <= 83332) { tax = 4270.70 + ((taxableIncome - 33332) * 0.25); } else if(taxableIncome <= 333332) { tax = 16770.70 + ((taxableIncome - 83332) * 0.30); } else { tax = 91770.70 + ((taxableIncome - 333332) * 0.35); } } tax = r2(tax); }
             const net = r2(gross - (sss + phic + hdmf + tax + loanDeduct + latesDeduction + charges));
             row.querySelector('.b-gov').innerText = fM(sss+phic+hdmf); row.querySelector('.b-tax').innerText = fM(tax); row.querySelector('.b-gross').innerText = fM(gross); row.querySelector('.b-net').innerText = fM(net);
@@ -1079,7 +1136,7 @@
         function processBatchPayroll() {
             const period = document.getElementById('batchPeriod').value; if(!period) return showToast("Period code mismatch.", "warning"); let count = 0;
             for(let i=0; i<batchData.length; i++) { const row = document.getElementById(`bRow-${i}`); if(row && row.dataset.payload) { const data = JSON.parse(row.dataset.payload); if(data.gross > 0) { db.payroll.push({ id: "PR-"+Date.now()+"-"+i, period: period, ...data }); db.loans.filter(l => l.empId === data.empId && l.balance > 0).forEach(l => { let dedAmt = Math.min(l.ded, l.balance); l.balance = r2(l.balance - dedAmt); if(!l.history) l.history = []; l.history.push({ period: period, date: new Date().toLocaleDateString('en-US'), amount: dedAmt }); }); count++; } } } 
-            exportDatabase(`db_backup_pre_payroll_${Date.now()}`); saveDB(`Batch Payroll Processed: ${period}`); refreshAdminUI(); showToast("Registry block posted.", "success"); document.getElementById('batchBody').innerHTML = `<tr><td colspan="12"><div class="empty-state">Data committed.</div></td></tr>`; batchData = [];
+            exportDatabase(`db_backup_pre_payroll_${Date.now()}`); saveDB(`Batch Payroll Processed: ${period}`); refreshAdminUI(); showToast("Registry block posted.", "success"); document.getElementById('batchBody').innerHTML = `<tr><td colspan="13"><div class="empty-state">Data committed.</div></td></tr>`; batchData = [];
         }
 
         function saveDTRDraft() { const cycle = document.getElementById('batchCycle').value; const phase = "manual"; const period = document.getElementById('batchPeriod').value; if(!period) return showToast("No period string.", "warning"); let draftData = {}; for(let i=0; i<batchData.length; i++) { const row = document.getElementById(`bRow-${i}`); if(row) draftData[batchData[i].id] = { days: row.querySelector('.b-days').value, ot: row.querySelector('.b-ot').value, ndhol: row.querySelector('.b-ndhol').value, bonus: row.querySelector('.b-bonus').value, food: row.querySelector('.b-food').value, lates: row.querySelector('.b-lates').value, charges: row.querySelector('.b-charges').value }; } if(!db.dtrDrafts) db.dtrDrafts = {}; db.dtrDrafts[`${cycle}_${phase}_${period}`] = draftData; saveDB("DTR Draft Saved"); showToast("State buffered.", "success"); }
