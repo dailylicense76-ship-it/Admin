@@ -13,10 +13,14 @@
     <meta property="og:type" content="website">
     <title class="sys-title">Degz Pulse Enterprise V35.5 (Vercel Node)</title>
     
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/assets/icon-192.png">
+
 
     <style>
         :root {
@@ -1311,6 +1315,15 @@
 
         function exportDatabase(filename = null) { const fName = filename || "degz_pulse_backup_" + new Date().toISOString().split('T')[0]; const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db)); const dlAnchorElem = document.createElement('a'); dlAnchorElem.setAttribute("href", dataStr); dlAnchorElem.setAttribute("download", fName + ".json"); document.body.appendChild(dlAnchorElem); dlAnchorElem.click(); document.body.removeChild(dlAnchorElem); showToast("State database written.", "success"); }
         function importDatabase() { const file = document.getElementById('importFile').files[0]; if (!file) return showToast("Descriptor missing.", "warning"); exportDatabase("pre_import_backup_" + Date.now()); const reader = new FileReader(); reader.onload = function(e) { try { const imported = JSON.parse(e.target.result); if(imported.settings) { db = imported; saveDB("Database Overwrite"); initEngine(); showToast("State recovered.", "success"); } else { showToast("Invalid descriptor mapping.", "error"); } } catch(err) { showToast("Parser fail.", "error"); } }; reader.readAsText(file); }
+    </script>
+         <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('Service Worker Registered'))
+                .catch(err => console.log('Service Worker Failed', err));
+            });
+        }
     </script>
 </body>
 </html>
