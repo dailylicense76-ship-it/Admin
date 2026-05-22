@@ -963,7 +963,7 @@
                 const idb = await initIndexedDB(); const tx = idb.transaction(STORE_NAME, 'readwrite'); const store = tx.objectStore(STORE_NAME); store.put(db, 'systemData');
             } catch(e) {}
 
-            if (GAS_URL && GAS_URL !== "" && GAS_URL !== "ILAGAY_MO_DITO_ANG_WEB_APP_URL_NA_NAG_UUMPISA_SA_SCRIPT.GOOGLE.COM") {
+            if (GAS_URL && GAS_URL !== "" && GAS_URL !== "https://script.google.com/macros/s/AKfycbwqONAMsA4Uj9Nd4G6lw-zcBVwPDbp_3aq0ylU-p1Q9zWCSBgRx_yifBNrPGSFueLUFTQ/exec") {
                 fetch(GAS_URL, {
                     method: 'POST',
                     body: JSON.stringify(db)
@@ -985,7 +985,7 @@
 
         // JSON INIT ENGINE
         async function initEngine() {
-            if (GAS_URL && GAS_URL !== "" && GAS_URL !== "ILAGAY_MO_DITO_ANG_WEB_APP_URL_NA_NAG_UUMPISA_SA_SCRIPT.GOOGLE.COM") {
+            if (GAS_URL && GAS_URL !== "" && GAS_URL !== "https://script.google.com/macros/s/AKfycbwqONAMsA4Uj9Nd4G6lw-zcBVwPDbp_3aq0ylU-p1Q9zWCSBgRx_yifBNrPGSFueLUFTQ/exec") {
                 fetch(GAS_URL)
                 .then(res => res.json())
                 .then(data => {
