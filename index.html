@@ -21,7 +21,7 @@
     <link rel="apple-touch-icon" href="/assets/icon-192.png">
 
     <style>
-        :root {{
+        :root {
             --brand: #4f46e5; --brand-hover: #4338ca; --brand-light: #e0e7ff;
             --sidebar: #0f172a; --sidebar-text: #94a3b8; --sidebar-hover: #1e293b;
             --bg: #f8fafc; --card: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0;
@@ -968,7 +968,7 @@
 
     <script>
         // 🚨🚨🚨 ILAGAY DITO ANG APPS SCRIPT WEB APP URL MO KUNG GAGAMITIN 🚨🚨🚨
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbwnizbrzMAP_XKK3b6HGAi_9Tik9y2z8EZ7N1Kio7yO_6yJEifO2vhTC5T5Ke8ypTbbDA/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbwqONAMsA4Uj9Nd4G6lw-zcBVwPDbp_3aq0ylU-p1Q9zWCSBgRx_yifBNrPGSFueLUFTQ/exec";
 
         let db = {
             settings: { comp: "Degz Pulse Enterprise", tin: "000-000-000", days: 22, hrs: 8, otRate: 1.25, adminPass: "ADMIN", geoEnabled: "false", geoLat: "", geoLng: "", geoRad: 100, shiftIn: "08:00", shiftOut: "17:00" },
@@ -1021,8 +1021,8 @@
                 const idb = await initIndexedDB(); const tx = idb.transaction(STORE_NAME, 'readwrite'); const store = tx.objectStore(STORE_NAME); store.put(db, 'systemData');
             } catch(e) {}
 
-            if (GAS_URL && GAS_URL !== "" && GAS_URL !== "https://script.google.com/macros/s/AKfycbwnizbrzMAP_XKK3b6HGAi_9Tik9y2z8EZ7N1Kio7yO_6yJEifO2vhTC5T5Ke8ypTbbDA/exec") {
-                fetch(GAS_URL, 
+            if (GAS_URL && GAS_URL !== "" && GAS_URL !== "https://script.google.com/macros/s/AKfycbwqONAMsA4Uj9Nd4G6lw-zcBVwPDbp_3aq0ylU-p1Q9zWCSBgRx_yifBNrPGSFueLUFTQ/exec") {
+                fetch(GAS_URL, {
                     method: 'POST',
                     body: JSON.stringify(db)
                 })
