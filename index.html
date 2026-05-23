@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-title" content="Degz Pulse">
     <meta property="og:title" content="Degz Pulse Enterprise">
     <meta property="og:type" content="website">
-    <title class="sys-title">Degz Pulse Enterprise V35.8 (Integrity Edition)</title>
+    <title class="sys-title">Degz Pulse Enterprise V35.8 (Live Sync Edition)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -41,7 +41,6 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        /* WATERMARK UPDATED: Mas malinaw na ngayon (0.08 opacity) */
         .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 6vw; font-weight: 800; color: rgba(0,0,0,0.08); pointer-events: none; z-index: 9999; white-space: nowrap; letter-spacing: 5px; }
 
         #splashScreen { position: fixed; inset: 0; background: #0f172a; z-index: 100000; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; transition: opacity 0.6s ease; opacity: 1; }
@@ -259,7 +258,7 @@
     <div id="splashScreen">
         <div class="splash-logo"><div style="font-size:2rem; font-weight:900;">DP</div></div>
         <h1 class="running-neon-text" style="font-size:1.8rem; letter-spacing:1px; margin-bottom:10px; font-weight:800;">⚡ DEGZ PULSE V35.8</h1>
-        <p style="color:#94a3b8; font-size:0.9rem;">Enterprise Ops & CRM Dispatch</p>
+        <p style="color:#94a3b8; font-size:0.9rem;">Enterprise Ops & Live Sync</p>
         <div style="margin-top:40px; width:40px; height:40px; border:3px solid rgba(255,255,255,0.1); border-top-color:#4f46e5; border-radius:50%; animation:spin 1s linear infinite;"></div>
     </div>
 
@@ -484,7 +483,6 @@
                     <table><thead><tr><th>Date Issued</th><th>Assigned Foreman</th><th>Priority</th><th>Details / Utos</th><th>Status Process</th></tr></thead><tbody id="crmDispatchTrackerBody"></tbody></table>
                 </div>
             </div>
-
         </div>
 
         <div id="view-sales-emp" class="content-area emp-view admin-view">
@@ -495,9 +493,7 @@
                     <div class="grid-4">
                         <div class="form-group"><label>Client Name</label><input type="text" id="salesClient_sales" required></div>
                         <div class="form-group"><label>Contact Details</label><input type="text" id="salesContact_sales" required></div>
-                        
                         <div class="form-group"><label>Delivery Address</label><input type="text" id="salesAddress_sales" placeholder="Location for Delivery" required></div>
-
                         <div class="form-group"><label>Deal Status</label>
                             <select id="salesStatus_sales">
                                 <option value="Open">🔵 Open Lead / Ongoing</option>
@@ -967,14 +963,19 @@
     <div id="printCanvas" style="display:none;"></div>
 
     <script>
-        // 🚨🚨🚨 ILAGAY DITO ANG APPS SCRIPT WEB APP URL MO KUNG GAGAMITIN 🚨🚨🚨
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbwnizbrzMAP_XKK3b6HGAi_9Tik9y2z8EZ7N1Kio7yO_6yJEifO2vhTC5T5Ke8ypTbbDA/exec";
+        // 🚨🚨🚨 ILAGAY DITO ANG BAGO AT TAMANG WEB APP URL MO 🚨🚨🚨
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbwqONAMsA4Uj9Nd4G6lw-zcBVwPDbp_3aq0ylU-p1Q9zWCSBgRx_yifBNrPGSFueLUFTQ/exec";
 
         let db = {
             settings: { comp: "Degz Pulse Enterprise", tin: "000-000-000", days: 22, hrs: 8, otRate: 1.25, adminPass: "ADMIN", geoEnabled: "false", geoLat: "", geoLng: "", geoRad: 100, shiftIn: "08:00", shiftOut: "17:00" },
             employees: [], loans: [], payroll: [], dtrDrafts: {}, leaves: [], bundyLogs: [], salesRecords: [], dispatchRecords: [], purchases: [], artistLogs: [], auditTrail: []
         };
         let batchData = []; let currentUserRole = null; let currentUserId = null; let loginAttempts = 0; let activeNavRole = 'Standard';
+
+        // FOCUS PROTECTION (Pampigil sa pag-refresh kung may tina-type ang user)
+        let isUserTyping = false;
+        document.addEventListener('focusin', (e) => { if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') isUserTyping = true; });
+        document.addEventListener('focusout', (e) => { isUserTyping = false; });
 
         document.getElementById('topbarDate').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         setTimeout(() => { document.getElementById('splashScreen').style.opacity = '0'; setTimeout(() => document.getElementById('splashScreen').style.display = 'none', 600); }, 2000);
@@ -1012,7 +1013,7 @@
             } catch (err) {}
         }
 
-        // PURE JSON-READY SAVE DB
+        // PURE JSON-READY SAVE DB (CORS FIXED)
         async function saveDB(actionStr = "Auto-Save") {
             if(!db.auditTrail) db.auditTrail = []; db.auditTrail.push({ time: new Date().toLocaleString(), user: currentUserId || (currentUserRole === 'admin' ? 'Super Admin' : 'System'), action: actionStr });
             let ind = document.getElementById('cloudStatusIndicator');
@@ -1021,9 +1022,11 @@
                 const idb = await initIndexedDB(); const tx = idb.transaction(STORE_NAME, 'readwrite'); const store = tx.objectStore(STORE_NAME); store.put(db, 'systemData');
             } catch(e) {}
 
-            if (GAS_URL && GAS_URL !== "" && GAS_URL !== "https://script.google.com/macros/s/AKfycbwnizbrzMAP_XKK3b6HGAi_9Tik9y2z8EZ7N1Kio7yO_6yJEifO2vhTC5T5Ke8ypTbbDA/exec") {
+            if (GAS_URL && GAS_URL !== "" && !GAS_URL.includes("AKfycbwqONAMsA4Uj9Nd4G6lw-zcBVwPDbp_3aq0ylU-p1Q9zWCSBgRx_yifBNrPGSFueLUFTQ")) {
                 fetch(GAS_URL, {
                     method: 'POST',
+                    redirect: 'follow', // 🚨 KINAKAYLANGAN PARA SA CORS
+                    headers: { "Content-Type": "text/plain;charset=utf-8" }, // 🚨 KINAKAYLANGAN PARA SA CORS
                     body: JSON.stringify(db)
                 })
                 .then(res => res.json())
@@ -1041,10 +1044,13 @@
             }
         }
 
-        // JSON INIT ENGINE
+        // JSON INIT ENGINE (CORS FIXED)
         async function initEngine() {
-            if (GAS_URL && GAS_URL !== "" && GAS_URL !== "https://script.google.com/macros/s/AKfycbwqONAMsA4Uj9Nd4G6lw-zcBVwPDbp_3aq0ylU-p1Q9zWCSBgRx_yifBNrPGSFueLUFTQ/exec") {
-                fetch(GAS_URL)
+            if (GAS_URL && GAS_URL !== "" && !GAS_URL.includes("AKfycbwqONAMsA4Uj9Nd4G6lw-zcBVwPDbp_3aq0ylU-p1Q9zWCSBgRx_yifBNrPGSFueLUFTQ")) {
+                fetch(GAS_URL, {
+                    method: 'GET',
+                    redirect: 'follow'
+                })
                 .then(res => res.json())
                 .then(data => {
                     if (data && Object.keys(data).length > 0) {
@@ -1070,6 +1076,31 @@
         }
         
         initEngine();
+
+        // 🚨 AUTO REFRESH BACKGROUND ENGINE (Every 30 Secs)
+        function startAutoRefresh() {
+            setInterval(() => {
+                if (GAS_URL && GAS_URL !== "" && !GAS_URL.includes("https://script.google.com/macros/s/AKfycbwnizbrzMAP_XKK3b6HGAi_9Tik9y2z8EZ7N1Kio7yO_6yJEifO2vhTC5T5Ke8ypTbbDA/exec")) {
+                    fetch(GAS_URL, { method: 'GET', redirect: 'follow' })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && Object.keys(data).length > 0) {
+                            db = { ...db, ...data };
+                            if (!db.salesRecords) db.salesRecords = []; if (!db.dispatchRecords) db.dispatchRecords = [];
+                            if (!db.purchases) db.purchases = []; if (!db.artistLogs) db.artistLogs = [];
+                            
+                            let isModalOpen = Array.from(document.querySelectorAll('.modal')).some(m => m.style.display === 'flex');
+                            
+                            // Smart Protection: Hindi mag-rerefresh ang view kung may naka-open na modal o nagta-type ang user
+                            if (!isModalOpen && !isUserTyping) {
+                                if(currentUserRole === 'admin') refreshAdminUI(); 
+                                else if(currentUserRole === 'emp') refreshEmpUI();
+                            }
+                        }
+                    }).catch(e => console.log("Background sync paused."));
+                }
+            }, 30000); // 30,000 ms = 30 seconds
+        }
 
         // UNIVERSAL SEARCH ENGINE
         function tableSearch(inputId, containerId) {
@@ -1145,6 +1176,7 @@
                     document.getElementById('sidebarAdmin').style.display = 'flex'; 
                     applyWhiteLabel(); switchView('view-dashboard', document.querySelector('#sidebarAdmin .nav-item'), 'admin'); 
                     showToast("Workspace Unlocked.", "success"); guardianSpeak("Welcome back, Boss.", "idle"); autoFillCutoff(); 
+                    startAutoRefresh(); // 🚨 AUTO REFRESH TRIGGER
                 } else { loginAttempts++; showToast("Invalid credential string.", "error"); } 
             } else { 
                 const emp = db.employees.find(e => e.id === idVal); 
@@ -1176,6 +1208,7 @@
                         
                         switchView(targetViewId, document.querySelectorAll('#sidebarEmp .nav-item')[targetNavIdx], 'emp'); 
                         showToast(`Portal Unlocked. Role: ${accessRole}`, "success"); 
+                        startAutoRefresh(); // 🚨 AUTO REFRESH TRIGGER
                     } else { loginAttempts++; showToast("Invalid credential string.", "error"); } 
                 } else { loginAttempts++; showToast("Invalid credential string.", "error"); } 
             }
