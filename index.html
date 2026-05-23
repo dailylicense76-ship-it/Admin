@@ -964,7 +964,7 @@
 
     <script>
         // 🚨🚨🚨 ILAGAY DITO ANG BAGO AT TAMANG WEB APP URL MO 🚨🚨🚨
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbwqONAMsA4Uj9Nd4G6lw-zcBVwPDbp_3aq0ylU-p1Q9zWCSBgRx_yifBNrPGSFueLUFTQ/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbwnizbrzMAP_XKK3b6HGAi_9Tik9y2z8EZ7N1Kio7yO_6yJEifO2vhTC5T5Ke8ypTbbDA/exec";
 
         let db = {
             settings: { comp: "Degz Pulse Enterprise", tin: "000-000-000", days: 22, hrs: 8, otRate: 1.25, adminPass: "ADMIN", geoEnabled: "false", geoLat: "", geoLng: "", geoRad: 100, shiftIn: "08:00", shiftOut: "17:00" },
@@ -1022,7 +1022,7 @@
                 const idb = await initIndexedDB(); const tx = idb.transaction(STORE_NAME, 'readwrite'); const store = tx.objectStore(STORE_NAME); store.put(db, 'systemData');
             } catch(e) {}
 
-            if (GAS_URL && GAS_URL !== "" && !GAS_URL.includes("AKfycbwqONAMsA4Uj9Nd4G6lw-zcBVwPDbp_3aq0ylU-p1Q9zWCSBgRx_yifBNrPGSFueLUFTQ")) {
+            if (GAS_URL && GAS_URL !== "" && !GAS_URL.includes("AKfycbwnizbrzMAP_XKK3b6HGAi_9Tik9y2z8EZ7N1Kio7yO_6yJEifO2vhTC5T5Ke8ypTbbDA")) {
                 fetch(GAS_URL, {
                     method: 'POST',
                     redirect: 'follow', // 🚨 KINAKAYLANGAN PARA SA CORS
@@ -1046,7 +1046,7 @@
 
         // JSON INIT ENGINE (CORS FIXED)
         async function initEngine() {
-            if (GAS_URL && GAS_URL !== "" && !GAS_URL.includes("AKfycbwqONAMsA4Uj9Nd4G6lw-zcBVwPDbp_3aq0ylU-p1Q9zWCSBgRx_yifBNrPGSFueLUFTQ")) {
+            if (GAS_URL && GAS_URL !== "" && !GAS_URL.includes("AKfycbwnizbrzMAP_XKK3b6HGAi_9Tik9y2z8EZ7N1Kio7yO_6yJEifO2vhTC5T5Ke8ypTbbDA")) {
                 fetch(GAS_URL, {
                     method: 'GET',
                     redirect: 'follow'
