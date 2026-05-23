@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-title" content="Degz Pulse">
     <meta property="og:title" content="Degz Pulse Enterprise">
     <meta property="og:type" content="website">
-    <title class="sys-title">Degz Pulse Enterprise V35.6 (Workflow Sync Edition)</title>
+    <title class="sys-title">Degz Pulse Enterprise V35.8 (Integrity Edition)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -21,7 +21,7 @@
     <link rel="apple-touch-icon" href="/assets/icon-192.png">
 
     <style>
-        :root {
+        :root {{
             --brand: #4f46e5; --brand-hover: #4338ca; --brand-light: #e0e7ff;
             --sidebar: #0f172a; --sidebar-text: #94a3b8; --sidebar-hover: #1e293b;
             --bg: #f8fafc; --card: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0;
@@ -41,7 +41,8 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 6vw; font-weight: 800; color: rgba(0,0,0,0.02); pointer-events: none; z-index: 9999; white-space: nowrap; letter-spacing: 5px; }
+        /* WATERMARK UPDATED: Mas malinaw na ngayon (0.08 opacity) */
+        .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 6vw; font-weight: 800; color: rgba(0,0,0,0.08); pointer-events: none; z-index: 9999; white-space: nowrap; letter-spacing: 5px; }
 
         #splashScreen { position: fixed; inset: 0; background: #0f172a; z-index: 100000; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; transition: opacity 0.6s ease; opacity: 1; }
         .splash-logo { width: 80px; height: 80px; background: linear-gradient(135deg, var(--brand), #818cf8); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 800; margin-bottom: 1.5rem; box-shadow: 0 10px 25px rgba(79, 70, 229, 0.5); animation: pulseLogo 1.5s infinite alternate; }
@@ -257,7 +258,7 @@
 
     <div id="splashScreen">
         <div class="splash-logo"><div style="font-size:2rem; font-weight:900;">DP</div></div>
-        <h1 class="running-neon-text" style="font-size:1.8rem; letter-spacing:1px; margin-bottom:10px; font-weight:800;">⚡ DEGZ PULSE V35.6</h1>
+        <h1 class="running-neon-text" style="font-size:1.8rem; letter-spacing:1px; margin-bottom:10px; font-weight:800;">⚡ DEGZ PULSE V35.8</h1>
         <p style="color:#94a3b8; font-size:0.9rem;">Enterprise Ops & CRM Dispatch</p>
         <div style="margin-top:40px; width:40px; height:40px; border:3px solid rgba(255,255,255,0.1); border-top-color:#4f46e5; border-radius:50%; animation:spin 1s linear infinite;"></div>
     </div>
@@ -278,7 +279,7 @@
     <div id="loginOverlay">
         <div class="login-box" style="position: relative; z-index: 2;">
             <div class="login-logo"><div style="font-size:1.5rem;">DP</div></div>
-            <h2 class="sys-title" style="margin-bottom:0.5rem; color:var(--brand); font-weight:800;">🔒 Degz Pulse V35.6</h2>
+            <h2 class="sys-title" style="margin-bottom:0.5rem; color:var(--brand); font-weight:800;">🔒 Degz Pulse V35.8</h2>
             <p class="text-muted" style="margin-bottom:2rem;">Fortress Secured Portal</p>
             
             <div style="background: var(--bg); padding: 0.5rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">
@@ -340,7 +341,6 @@
         <div class="nav-menu">
             <a class="nav-item active" onclick="switchView('view-emp-dash', this, 'emp')">⏱️ Clock</a>
             
-            <!-- ROLE NAVS TOGGLED BY JS -->
             <div class="nav-label" id="labelRoleNav" style="display:none;">💼 Role Dashboard</div>
             <a class="nav-item" id="navHrCrm" onclick="switchView('view-hr-crm', this, 'emp')" style="display:none; color:var(--info);">📋 CRM Schedule & Purchases</a>
             <a class="nav-item" id="navSales" onclick="switchView('view-sales-emp', this, 'emp')" style="display:none; color:var(--success);">💼 Sales Deals</a>
@@ -349,7 +349,7 @@
 
             <div class="nav-label">👤 Personal</div>
             <a class="nav-item" onclick="switchView('view-emp-leaves', this, 'emp')">📅 Leave</a>
-            <a class="nav-item" onclick="switchView('view-emp-payslips', this, 'emp')">🧾 Slips</a>
+            <a class="nav-item" onclick="switchView('view-emp-payslips', this, 'emp')">🧾 Pay & Loan History</a>
             <a class="nav-item" onclick="openPassModal()">🔑 Pass</a>
             <a class="nav-item" style="color:var(--danger);" onclick="location.reload()">🔒 Out</a>
         </div>
@@ -371,6 +371,19 @@
         </header>
 
         <div id="view-dashboard" class="content-area admin-view">
+            <div style="margin-bottom:1.5rem; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; align-items:center; background: var(--card); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--border);">
+                <div style="font-weight:700; color:var(--brand);">⚡ Quick Operations Dashboard</div>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <strong style="color:var(--text-muted); font-size:0.8rem;">📅 FILTER DATA:</strong>
+                    <select id="dashDataFilter" class="form-group select" style="width:160px; padding:0.4rem; border-radius:6px; border:1px solid var(--border);" onchange="refreshAdminUI()">
+                        <option value="daily">📅 Today</option>
+                        <option value="monthly">🗓️ This Month</option>
+                        <option value="yearly">📆 This Year</option>
+                        <option value="all" selected>🌎 All Time</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="quick-actions">
                 <div style="font-weight:700; color:var(--brand); margin-right:1rem;">⚡ Quick Actions:</div>
                 <button class="btn btn-primary" onclick="document.querySelectorAll('#sidebarAdmin .nav-item')[5].click()">👤 Add Employee</button>
@@ -378,19 +391,18 @@
                 <button class="btn btn-outline" onclick="document.querySelectorAll('#sidebarAdmin .nav-item')[8].click()">💰 Grant Loan</button>
             </div>
 
-            <!-- DASHBOARD UPDATED STATS -->
-            <div class="grid-4" style="margin-bottom: 2rem;">
+            <div class="grid-5" style="margin-bottom: 2rem;">
                 <div class="stat-card"><div class="stat-title">👥 Active Workforce</div><div class="stat-value" id="dashHeadcount">0</div></div>
                 <div class="stat-card" style="border-left-color: var(--success);"><div class="stat-title">💰 YTD Disbursed</div><div class="stat-value" style="color:var(--success);" id="dashTotalPayroll">0.00</div></div>
+                <div class="stat-card" style="border-left-color: var(--artist);"><div class="stat-title">📦 Total Orders Count</div><div class="stat-value" style="color:var(--artist);" id="dashTotalOrders">0</div></div>
                 <div class="stat-card" style="border-left-color: var(--info);"><div class="stat-title">📈 Total Sales Value</div><div class="stat-value" style="color:var(--info);" id="dashTotalSales">0.00</div></div>
                 <div class="stat-card" style="border-left-color: var(--danger);"><div class="stat-title">📉 Shop Expenses</div><div class="stat-value" style="color:var(--danger);" id="dashTotalExpenses">0.00</div></div>
             </div>
 
-            <!-- DASHBOARD LIVE FEED -->
             <div class="grid-2">
                 <div class="card" style="border-top: 4px solid var(--info);">
                     <div class="card-header">
-                        <div class="card-title">🌐 Live Operations Feed</div>
+                        <div class="card-title">🌐 Live Activity Feed</div>
                     </div>
                     <input type="text" class="search-bar" id="searchFeed" onkeyup="tableSearch('searchFeed', 'liveFeedBody')" placeholder="🔍 Search operations...">
                     <div class="feed-container" id="liveFeedBody"></div>
@@ -407,22 +419,16 @@
             </div>
         </div>
 
-        <!-- ========================================== -->
-        <!-- ROLE: HR CRM ADMIN -->
-        <!-- ========================================== -->
         <div id="view-hr-crm" class="content-area admin-view emp-view">
-            
-            <!-- ANNOUNCEMENTS FROM SALES -->
             <div class="card" style="border-left: 4px solid var(--success); background:#f0fdf4;">
-                <div class="card-header"><div class="card-title" style="color:var(--success);">📢 Closed Deals by Sales (Needs Scheduling)</div></div>
+                <div class="card-header"><div class="card-title" style="color:var(--success);">📢 Deals Pending Scheduling</div></div>
                 <p class="card-desc">Mga na-close ni Sales Marketing. Mag-set ng Target Event Date at mag-assign ng Foreman dito.</p>
                 <input type="text" class="search-bar" id="searchSalesCrm" onkeyup="tableSearch('searchSalesCrm', 'crmPendingDealsBody')" placeholder="🔍 Search closed deals...">
                 <div class="table-wrapper">
-                    <table><thead><tr><th>Client / Order</th><th>Details</th><th>Total Qty</th><th class="val-num">Balance</th><th>Action</th></tr></thead><tbody id="crmPendingDealsBody"></tbody></table>
+                    <table><thead><tr><th>Client / Order & Address</th><th>Details</th><th>Total Qty</th><th class="val-num">Balance</th><th>Action</th></tr></thead><tbody id="crmPendingDealsBody"></tbody></table>
                 </div>
             </div>
 
-            <!-- PURCHASES MODULE -->
             <div class="card" style="border-left: 4px solid var(--warning); margin-top: 2rem;">
                 <div class="card-header"><div class="card-title">🛒 Shop Purchases & Expenses</div></div>
                 <form onsubmit="savePurchase(event)">
@@ -441,14 +447,12 @@
                 </div>
             </div>
 
-            <!-- MASTER CRM SCHEDULE -->
             <div class="card" style="margin-top: 2rem;">
-                <div class="card-header"><div class="card-title">📅 Master Scheduled Events</div></div>
+                <div class="card-header"><div class="card-title">📅 Master CRM Scheduled Events</div></div>
                 <input type="text" class="search-bar" id="searchClientCrm" placeholder="🔍 Search Client Name or Contact..." onkeyup="tableSearch('searchClientCrm', 'crmMasterSchedBody')">
-                <div class="table-wrapper"><table><thead><tr><th>Target Date</th><th>Client</th><th>Assigned Foreman</th><th>Status</th></tr></thead><tbody id="crmMasterSchedBody"></tbody></table></div>
+                <div class="table-wrapper"><table><thead><tr><th>Target Date</th><th>Client / Contact / Address</th><th>Assigned Foreman</th><th>Delivery Status</th><th>Actions</th></tr></thead><tbody id="crmMasterSchedBody"></tbody></table></div>
             </div>
 
-            <!-- FOREMAN DISPATCH / ANNOUNCEMENT BOARD -->
             <div class="card" style="border-left: 4px solid var(--info); margin-top: 2rem; background: var(--info-bg);">
                 <div class="card-header"><div class="card-title" style="color:var(--info);">📢 Post Announcement / Utos kay Foreman</div></div>
                 <p class="card-desc">Dito mag-post ng diretsong utos, sukat ng bakal, o manual event details na lalabas sa Foreman Board.</p>
@@ -473,7 +477,6 @@
                 </form>
             </div>
 
-            <!-- NEW CRM FOREMAN TRACKER -->
             <div class="card" style="border-left: 4px solid var(--brand); margin-top: 2rem;">
                 <div class="card-header"><div class="card-title">👁️ Foreman Dispatch Tracking</div><div class="text-muted" style="font-size:0.8rem;">Monitor live process status ng inutos kay Foreman.</div></div>
                 <input type="text" class="search-bar" id="searchTrackerCrm" onkeyup="tableSearch('searchTrackerCrm', 'crmDispatchTrackerBody')" placeholder="🔍 Search announcements or foreman states...">
@@ -484,9 +487,6 @@
 
         </div>
 
-        <!-- ========================================== -->
-        <!-- ROLE: SALES MARKETING -->
-        <!-- ========================================== -->
         <div id="view-sales-emp" class="content-area emp-view admin-view">
             <div class="card" style="border-top: 4px solid var(--success);">
                 <div class="card-header"><div class="card-title">💼 Sales: Log Deal</div></div>
@@ -495,19 +495,26 @@
                     <div class="grid-4">
                         <div class="form-group"><label>Client Name</label><input type="text" id="salesClient_sales" required></div>
                         <div class="form-group"><label>Contact Details</label><input type="text" id="salesContact_sales" required></div>
+                        
+                        <div class="form-group"><label>Delivery Address</label><input type="text" id="salesAddress_sales" placeholder="Location for Delivery" required></div>
+
                         <div class="form-group"><label>Deal Status</label>
                             <select id="salesStatus_sales">
                                 <option value="Open">🔵 Open Lead / Ongoing</option>
                                 <option value="Closed">🟢 Closed Deal (Send to CRM)</option>
                             </select>
                         </div>
-                        <div class="form-group"><label>Total Order Qty (Pcs/Set)</label><input type="number" id="salesQty_sales" required></div>
                     </div>
-                    <div class="form-group" style="margin-top:1rem;"><label>Details & Specs</label><textarea id="salesDetails_sales" rows="3" placeholder="Sukat, design, special instructions..." required></textarea></div>
-                    <div class="grid-3" style="margin-top:1rem;">
-                        <div class="form-group"><label>Total Amount</label><input type="number" step="0.01" id="salesTotal_sales" oninput="calcSalesBalance('sales')" required></div>
-                        <div class="form-group"><label>Amount Paid (Down)</label><input type="number" step="0.01" id="salesPaid_sales" oninput="calcSalesBalance('sales')" required></div>
-                        <div class="form-group"><label>Remaining Balance</label><input type="number" id="salesBalance_sales" readonly style="background:#fef2f2; color:var(--danger); font-weight:bold;"></div>
+                    <div class="grid-2" style="margin-top:1rem;">
+                        <div class="form-group"><label>Details & Specs</label><textarea id="salesDetails_sales" rows="3" placeholder="Sukat, design, special instructions..." required></textarea></div>
+                        <div class="form-group">
+                            <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Total Order Qty (Pcs/Set)</label><input type="number" id="salesQty_sales" style="margin-bottom:10px; width:100%; padding:0.6rem 0.8rem; border:1px solid var(--border); border-radius:8px;" required>
+                            <div class="grid-3">
+                                <div class="form-group"><label>Total Amount</label><input type="number" step="0.01" id="salesTotal_sales" oninput="calcSalesBalance('sales')" required></div>
+                                <div class="form-group"><label>Amount Paid (Down)</label><input type="number" step="0.01" id="salesPaid_sales" oninput="calcSalesBalance('sales')" required></div>
+                                <div class="form-group"><label>Remaining Balance</label><input type="number" id="salesBalance_sales" readonly style="background:#fef2f2; color:var(--danger); font-weight:bold;"></div>
+                            </div>
+                        </div>
                     </div>
                     <div style="margin-top: 1.5rem; text-align: right;"><button type="submit" class="btn btn-success">💾 Save Deal</button></div>
                 </form>
@@ -515,13 +522,10 @@
             <div class="card">
                 <div class="card-header"><div class="card-title">📅 My Client Roster</div></div>
                 <input type="text" class="search-bar" id="searchSales" onkeyup="tableSearch('searchSales', 'salesMyDealsBody')" placeholder="🔍 Search clients...">
-                <div class="table-wrapper"><table><thead><tr><th>Client</th><th>Qty</th><th>Status</th><th class="val-num">Total</th><th class="val-num">Balance</th><th>Action</th></tr></thead><tbody id="salesMyDealsBody"></tbody></table></div>
+                <div class="table-wrapper"><table><thead><tr><th>Client & Address</th><th>Qty</th><th>Status</th><th class="val-num">Total</th><th class="val-num">Balance</th><th>Action</th></tr></thead><tbody id="salesMyDealsBody"></tbody></table></div>
             </div>
         </div>
 
-        <!-- ========================================== -->
-        <!-- ROLE: GRAPHIC ARTIST -->
-        <!-- ========================================== -->
         <div id="view-artist-board" class="content-area emp-view admin-view">
             <div class="card" style="border-top: 4px solid var(--artist);">
                 <div class="card-header"><div class="card-title" style="color:var(--artist);">🎨 Graphic Artist Logistics Board</div></div>
@@ -853,10 +857,20 @@
 
         <div id="view-emp-payslips" class="content-area emp-view">
             <div class="card"><div class="card-header"><div class="card-title">🧾 My Payslip Archive</div></div><div class="table-wrapper"><table><thead><tr><th>Period</th><th class="val-num">Gross Pay</th><th class="val-num">Total Ded</th><th class="val-num">Net Pay</th><th style="text-align:center;">Action</th></tr></thead><tbody id="myPayslipsBody"></tbody></table></div></div>
+            
+            <div class="card" style="margin-top: 2rem; border-top: 4px solid var(--danger);">
+                <div class="card-header"><div class="card-title" style="color:var(--danger);">💸 My Loan & Vale Payment History</div></div>
+                <p class="card-desc">History ng mga naging utang mo at kung kailan ito kinaltas sa sahod mo.</p>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Loan Type</th><th>Original Amount</th><th>Payment Date / Period</th><th class="val-num">Amount Deducted</th></tr></thead>
+                        <tbody id="myLoanHistoryBody"></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </main>
 
-    <!-- NEW MODAL FOR SCHEDULING (HR CRM) -->
     <div id="scheduleModal" class="modal">
         <div class="modal-content" style="max-width:500px; padding: 2rem;">
             <span class="modal-close" onclick="document.getElementById('scheduleModal').style.display='none'">✖</span>
@@ -1008,7 +1022,7 @@
             } catch(e) {}
 
             if (GAS_URL && GAS_URL !== "" && GAS_URL !== "https://script.google.com/macros/s/AKfycbwnizbrzMAP_XKK3b6HGAi_9Tik9y2z8EZ7N1Kio7yO_6yJEifO2vhTC5T5Ke8ypTbbDA/exec") {
-                fetch(GAS_URL, {
+                fetch(GAS_URL, 
                     method: 'POST',
                     body: JSON.stringify(db)
                 })
@@ -1029,7 +1043,7 @@
 
         // JSON INIT ENGINE
         async function initEngine() {
-            if (GAS_URL && GAS_URL !== "" && GAS_URL !== "https://script.google.com/macros/s/AKfycbwnizbrzMAP_XKK3b6HGAi_9Tik9y2z8EZ7N1Kio7yO_6yJEifO2vhTC5T5Ke8ypTbbDA/exec") {
+            if (GAS_URL && GAS_URL !== "" && GAS_URL !== "https://script.google.com/macros/s/AKfycbwqONAMsA4Uj9Nd4G6lw-zcBVwPDbp_3aq0ylU-p1Q9zWCSBgRx_yifBNrPGSFueLUFTQ/exec") {
                 fetch(GAS_URL)
                 .then(res => res.json())
                 .then(data => {
@@ -1090,7 +1104,7 @@
 
         const TutorialEngine = {
             isActive: false, stepIndex: 0, synth: window.speechSynthesis,
-            steps: [ { view: 'view-dashboard', target: null, role: 'admin', msg: "Boss, welcome sa Degz Pulse V35.5 Roles Edition." }, { view: 'view-hr-crm', target: null, role: 'admin', msg: "Ang HR CRM Board. Dito mag-s-schedule at a-assign ng Foreman." }, { view: 'view-employees', target: '#empCrmAccess', role: 'admin', msg: "Dito sine-set ang role ng employee (Sales, Artist, Foreman)." }, { view: 'view-dashboard', target: null, role: 'admin', msg: "System secure." } ],
+            steps: [ { view: 'view-dashboard', target: null, role: 'admin', msg: "Boss, welcome sa Degz Pulse V35.8." }, { view: 'view-hr-crm', target: null, role: 'admin', msg: "Ang HR CRM Board. Dito mag-s-schedule at a-assign ng Foreman." }, { view: 'view-employees', target: '#empCrmAccess', role: 'admin', msg: "Dito sine-set ang role ng employee." }, { view: 'view-dashboard', target: null, role: 'admin', msg: "System secure." } ],
             start() { if (this.isActive) return this.playStep(); if (currentUserRole !== 'admin') { guardianSpeak("Access Denied.", "warning"); return; } this.isActive = true; this.stepIndex = 0; document.getElementById('tutorialOverlay').classList.add('active'); document.body.classList.add('tutorial-mode'); this.playStep(); },
             playStep() { if (this.stepIndex >= this.steps.length) return this.end(); const step = this.steps[this.stepIndex]; const navItems = document.querySelectorAll(`#sidebarAdmin .nav-item`); let targetNav = Array.from(navItems).find(n => n.getAttribute('onclick').includes(step.view)); if (targetNav) switchView(step.view, targetNav, 'admin'); document.querySelectorAll('.tutorial-highlight').forEach(el => el.classList.remove('tutorial-highlight')); if (step.target) { const targetEl = document.querySelector(step.target); if (targetEl) { targetEl.classList.add('tutorial-highlight'); targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); } } guardianSpeak(step.msg, "idle", 8000); this.speakAudio(step.msg); this.stepIndex++; },
             speakAudio(text) { if (this.synth.speaking) this.synth.cancel(); const utterance = new SpeechSynthesisUtterance(text); utterance.lang = 'en-US'; utterance.rate = 1.0; utterance.pitch = 1.0; this.synth.speak(utterance); },
@@ -1289,9 +1303,19 @@
             e.preventDefault(); let id = document.getElementById('schedDealId').value; let date = document.getElementById('schedDate').value; let fman = document.getElementById('schedForeman').value;
             let s = db.salesRecords.find(x => x.id === id); if(!s) return;
             s.targetDate = date; s.assignedForeman = fman; s.status = 'Scheduled';
-            // Auto dispatch to Foreman
-            db.dispatchRecords.push({ id: "DSP-" + Date.now(), assignee: fman, priority: "Normal", date: date, details: `[JOB ORDER] Client: ${s.client}. Specs: ${s.details}. Qty: ${s.totalQty}`, status: "Pending", issuedBy: currentUserId || 'Admin' });
-            saveDB("Schedule Confirmed"); document.getElementById('scheduleModal').style.display = 'none'; showToast("Deal Scheduled & Foreman Dispatched.", "success"); if(currentUserRole==='admin') refreshAdminUI(); else refreshEmpUI();
+            // Auto dispatch to Foreman - ADDED ADDRESS
+            db.dispatchRecords.push({ id: "DSP-" + Date.now(), assignee: fman, priority: "Normal", date: date, details: `[JOB ORDER] Client: ${s.client}. Address: ${s.address || 'N/A'}. Specs: ${s.details}. Qty: ${s.totalQty}`, status: "Pending", issuedBy: currentUserId || 'Admin' });
+            saveDB("Schedule Confirmed & Assigned to Foreman"); document.getElementById('scheduleModal').style.display = 'none'; showToast("Deal Scheduled & Foreman Dispatched.", "success"); if(currentUserRole==='admin') refreshAdminUI(); else refreshEmpUI();
+        }
+
+        function updateSalesStatus(id, newStatus) {
+            let s = db.salesRecords.find(x => x.id === id);
+            if(s) { 
+                s.status = newStatus; 
+                saveDB(`Deal Update: ${s.client} is now ${newStatus}`); 
+                showToast(`Order marked as ${newStatus}`, "success"); 
+                if(currentUserRole === 'admin') refreshAdminUI(); else refreshEmpUI();
+            }
         }
 
         function renderHrCrmBoard() {
@@ -1302,11 +1326,29 @@
             
             let pending = db.salesRecords.filter(s => s.status === 'Closed');
             if(pending.length === 0) pendingBody.innerHTML = `<tr><td colspan="5"><div class="empty-state">No new closed deals from Sales.</div></td></tr>`;
-            else { pending.forEach(s => { pendingBody.innerHTML += `<tr><td><strong>${s.client}</strong><br><span style="font-size:0.75rem; color:var(--success);">By: ${s.encodedBy}</span></td><td><div class="truncate" style="max-width:200px;">${s.details}</div></td><td style="font-weight:bold;">${s.totalQty||0} pcs</td><td class="val-num" style="color:var(--danger);">${fM(s.balance)}</td><td><button class="btn btn-success" style="padding:4px 8px;" onclick="openScheduleModal('${s.id}')">📅 Schedule</button></td></tr>`; }); }
+            else { pending.forEach(s => { pendingBody.innerHTML += `<tr><td><strong>${s.client}</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">📍 ${s.address || 'N/A'}</span><br><span style="font-size:0.75rem; color:var(--success);">By: ${s.encodedBy}</span></td><td><div class="truncate" style="max-width:200px;">${s.details}</div></td><td style="font-weight:bold;">${s.totalQty||0} pcs</td><td class="val-num" style="color:var(--danger);">${fM(s.balance)}</td><td><button class="btn btn-success" style="padding:4px 8px;" onclick="openScheduleModal('${s.id}')">📅 Schedule</button></td></tr>`; }); }
 
-            let scheduled = db.salesRecords.filter(s => s.status === 'Scheduled').sort((a,b) => new Date(a.targetDate) - new Date(b.targetDate));
-            if(scheduled.length === 0) schedBody.innerHTML = `<tr><td colspan="4"><div class="empty-state">No scheduled events.</div></td></tr>`;
-            else { scheduled.forEach(s => { let fname = db.employees.find(e => e.id === s.assignedForeman)?.name || s.assignedForeman; schedBody.innerHTML += `<tr><td style="font-weight:bold;">${s.targetDate} <br>${checkWarning(s.targetDate)}</td><td><strong>${s.client}</strong><br><span style="font-size:0.7rem; color:var(--text-muted);">${s.contact}</span></td><td>👷‍♂️ ${fname}</td><td><span class="badge badge-success">Scheduled</span></td></tr>`; }); }
+            let masterList = db.salesRecords.filter(s => s.status === 'Scheduled' || s.status === 'Processing' || s.status === 'Delivered').sort((a,b) => new Date(b.dateLogged || a.targetDate) - new Date(a.dateLogged || b.targetDate));
+            if(masterList.length === 0) schedBody.innerHTML = `<tr><td colspan="5"><div class="empty-state">No scheduled events.</div></td></tr>`;
+            else { 
+                masterList.forEach(s => { 
+                    let fname = db.employees.find(e => e.id === s.assignedForeman)?.name || s.assignedForeman; 
+                    let statBadge = `<span class="badge badge-info">${s.status}</span>`;
+                    if(s.status === 'Scheduled') statBadge = `<span class="badge badge-warning">⏳ Scheduled</span>`;
+                    if(s.status === 'Processing') statBadge = `<span class="badge badge-info" style="background:#3b82f6; color:white;">⚙️ Processing</span>`;
+                    if(s.status === 'Delivered') statBadge = `<span class="badge badge-success" style="background:#059669; color:white;">🚚 Delivered</span>`;
+                    
+                    let actionsHtml = '';
+                    if(s.status !== 'Delivered') {
+                        actionsHtml = `<div style="display:flex; gap:5px; flex-wrap:wrap;">
+                            <button class="btn btn-icon" title="Process" style="border:1px solid var(--info); color:var(--info);" onclick="updateSalesStatus('${s.id}', 'Processing')">⚙️</button>
+                            <button class="btn btn-icon" title="Deliver" style="border:1px solid var(--success); color:var(--success);" onclick="updateSalesStatus('${s.id}', 'Delivered')">🚚</button>
+                        </div>`;
+                    } else { actionsHtml = `<span style="font-size:0.8rem; color:var(--success); font-weight:bold;">Done</span>`; }
+
+                    schedBody.innerHTML += `<tr><td style="font-weight:bold;">${s.targetDate} <br>${checkWarning(s.targetDate)}</td><td><strong>${s.client}</strong><br><span style="font-size:0.7rem; color:var(--text-muted);">${s.contact}</span><br><span style="font-size:0.7rem; color:var(--text-muted);">📍 ${s.address || 'N/A'}</span></td><td>👷‍♂️ ${fname}</td><td>${statBadge}</td><td>${actionsHtml}</td></tr>`; 
+                }); 
+            }
             
             renderPurchases('purchaseBody_crm');
 
@@ -1387,8 +1429,9 @@
         function updateDispatchStatus(id, newStatus) { let task = db.dispatchRecords.find(t => t.id === id); if(task) { task.status = newStatus; saveDB(`Dispatch Update: ${newStatus}`); showToast("State transition logged.", "success"); if(currentUserRole==='admin') refreshAdminUI(); else refreshEmpUI(); } }
         function renderForemanBoard() {
             let fg = document.getElementById('foremanTaskGrid'); if(!fg) return; fg.innerHTML = '';
+            // FIX FOREMAN VISIBILITY: Make sure they only see tasks assigned to them (or ALL)
             let myTasks = db.dispatchRecords.filter(d => d.assignee === 'ALL' || d.assignee === currentUserId).reverse();
-            if(myTasks.length === 0) { fg.innerHTML = `<div class="empty-state" style="grid-column: span 2;">No pending assignments.</div>`; return; }
+            if(myTasks.length === 0) { fg.innerHTML = `<div class="empty-state" style="grid-column: span 2;">No pending assignments. Wala pa pong naka-schedule sayo mula sa HR CRM.</div>`; return; }
             myTasks.forEach(t => { 
                 let isUrgent = t.priority === 'Urgent' ? 'border-color: var(--danger); background: #fff0f2;' : ''; let actionButtons = ''; 
                 if(t.status === 'Pending') { actionButtons = `<button class="btn btn-warning" onclick="updateDispatchStatus('${t.id}', 'Ongoing')">⏳ Mark Ongoing</button>`; } else if (t.status === 'Ongoing') { actionButtons = `<button class="btn btn-success" onclick="updateDispatchStatus('${t.id}', 'Completed')">✅ Mark Completed</button>`; } else { actionButtons = `<span style="color: var(--success); font-weight:bold;">✅ Task Completed</span>`; } 
@@ -1397,16 +1440,47 @@
         }
 
         function calcSalesBalance(role) { let total = parseFloat(document.getElementById(`salesTotal_${role}`).value) || 0; let paid = parseFloat(document.getElementById(`salesPaid_${role}`).value) || 0; document.getElementById(`salesBalance_${role}`).value = (total - paid).toFixed(2); }
-        function saveSalesRecord(e, role) { e.preventDefault(); if(!db.salesRecords) db.salesRecords = []; let idVal = document.getElementById(`salesId_${role}`).value; let record = { id: idVal ? idVal : "SLS-" + Date.now(), client: sanitizeInput(document.getElementById(`salesClient_${role}`).value), contact: sanitizeInput(document.getElementById(`salesContact_${role}`).value), totalQty: parseFloat(document.getElementById(`salesQty_${role}`).value) || 0, status: document.getElementById(`salesStatus_${role}`).value, details: sanitizeInput(document.getElementById(`salesDetails_${role}`).value), total: parseFloat(document.getElementById(`salesTotal_${role}`).value) || 0, paid: parseFloat(document.getElementById(`salesPaid_${role}`).value) || 0, balance: parseFloat(document.getElementById(`salesBalance_${role}`).value) || 0, encodedBy: currentUserId || 'Admin' }; if(idVal) { let idx = db.salesRecords.findIndex(s => s.id === idVal); if(idx > -1) { record.targetDate = db.salesRecords[idx].targetDate; record.assignedForeman = db.salesRecords[idx].assignedForeman; db.salesRecords[idx] = record; } } else { db.salesRecords.push(record); } saveDB("Sales Record Mutated"); e.target.reset(); document.getElementById(`salesId_${role}`).value = ""; showToast("Ledger record committed.", "success"); if(currentUserRole === 'admin') refreshAdminUI(); else refreshEmpUI(); }
-        function editSales(id, role) { const s = db.salesRecords.find(x => x.id === id); if(!s) return; document.getElementById(`salesId_${role}`).value = s.id; document.getElementById(`salesClient_${role}`).value = s.client; document.getElementById(`salesContact_${role}`).value = s.contact; document.getElementById(`salesQty_${role}`).value = s.totalQty || 0; document.getElementById(`salesStatus_${role}`).value = s.status; document.getElementById(`salesDetails_${role}`).value = s.details; document.getElementById(`salesTotal_${role}`).value = s.total; document.getElementById(`salesPaid_${role}`).value = s.paid; calcSalesBalance(role); showToast("Buffer active.", "info"); }
+        function saveSalesRecord(e, role) { 
+            e.preventDefault(); 
+            if(!db.salesRecords) db.salesRecords = []; 
+            let idVal = document.getElementById(`salesId_${role}`).value; 
+            let record = { 
+                id: idVal ? idVal : "SLS-" + Date.now(), 
+                client: sanitizeInput(document.getElementById(`salesClient_${role}`).value), 
+                contact: sanitizeInput(document.getElementById(`salesContact_${role}`).value), 
+                address: sanitizeInput(document.getElementById(`salesAddress_${role}`).value), // NEW DELIVERY ADDRESS
+                totalQty: parseFloat(document.getElementById(`salesQty_${role}`).value) || 0, 
+                status: document.getElementById(`salesStatus_${role}`).value, 
+                details: sanitizeInput(document.getElementById(`salesDetails_${role}`).value), 
+                total: parseFloat(document.getElementById(`salesTotal_${role}`).value) || 0, 
+                paid: parseFloat(document.getElementById(`salesPaid_${role}`).value) || 0, 
+                balance: parseFloat(document.getElementById(`salesBalance_${role}`).value) || 0, 
+                encodedBy: currentUserId || 'Admin',
+                dateLogged: new Date().toISOString().split('T')[0] // FOR FILTERING
+            }; 
+            if(idVal) { 
+                let idx = db.salesRecords.findIndex(s => s.id === idVal); 
+                if(idx > -1) { record.targetDate = db.salesRecords[idx].targetDate; record.assignedForeman = db.salesRecords[idx].assignedForeman; db.salesRecords[idx] = record; } 
+            } else { db.salesRecords.push(record); } 
+            saveDB("Sales Record Mutated"); 
+            e.target.reset(); document.getElementById(`salesId_${role}`).value = ""; showToast("Ledger record committed.", "success"); 
+            if(currentUserRole === 'admin') refreshAdminUI(); else refreshEmpUI(); 
+        }
+        
+        function editSales(id, role) { const s = db.salesRecords.find(x => x.id === id); if(!s) return; document.getElementById(`salesId_${role}`).value = s.id; document.getElementById(`salesClient_${role}`).value = s.client; document.getElementById(`salesContact_${role}`).value = s.contact; document.getElementById(`salesAddress_${role}`).value = s.address || ''; document.getElementById(`salesQty_${role}`).value = s.totalQty || 0; document.getElementById(`salesStatus_${role}`).value = s.status; document.getElementById(`salesDetails_${role}`).value = s.details; document.getElementById(`salesTotal_${role}`).value = s.total; document.getElementById(`salesPaid_${role}`).value = s.paid; calcSalesBalance(role); showToast("Buffer active.", "info"); }
 
         function renderSalesEmp() {
             let myBody = document.getElementById('salesMyDealsBody'); if(!myBody) return; myBody.innerHTML='';
             let myDeals = db.salesRecords.filter(s => s.encodedBy === currentUserId || currentUserRole === 'admin').reverse();
             if(myDeals.length===0) { myBody.innerHTML = `<tr><td colspan="6"><div class="empty-state">No leads yet.</div></td></tr>`; return;}
             myDeals.forEach(s => {
-                let badge = s.status === 'Open' ? '<span class="badge badge-info">🔵 Open Lead</span>' : (s.status==='Scheduled' ? '<span class="badge badge-success">📅 Scheduled by HR</span>' : '<span class="badge badge-warning">🟢 Closed (Pending HR)</span>');
-                myBody.innerHTML += `<tr><td><strong>${s.client}</strong><br><span style="font-size:0.7rem;">${s.contact}</span></td><td style="font-weight:bold;">${s.totalQty||0} pcs</td><td>${badge}</td><td class="val-num">${fM(s.total)}</td><td class="val-num" style="color:var(--danger);">${fM(s.balance)}</td><td><button class="btn btn-icon" onclick="editSales('${s.id}', 'sales')">✏️</button></td></tr>`;
+                let badge = `<span class="badge badge-info">${s.status}</span>`;
+                if(s.status === 'Open') badge = '<span class="badge badge-info">🔵 Open Lead</span>';
+                if(s.status === 'Closed') badge = '<span class="badge badge-warning">🟢 Closed (Pending HR)</span>';
+                if(s.status === 'Scheduled') badge = '<span class="badge badge-success">📅 Scheduled by HR</span>';
+                if(s.status === 'Delivered') badge = '<span class="badge badge-success" style="background:#059669;">🚚 Delivered</span>';
+                
+                myBody.innerHTML += `<tr><td><strong>${s.client}</strong><br><span style="font-size:0.7rem; color:var(--text-muted);">📍 ${s.address || 'No Address Provided'}</span></td><td style="font-weight:bold;">${s.totalQty||0} pcs</td><td>${badge}</td><td class="val-num">${fM(s.total)}</td><td class="val-num" style="color:var(--danger);">${fM(s.balance)}</td><td><button class="btn btn-icon" onclick="editSales('${s.id}', 'sales')">✏️</button></td></tr>`;
             });
         }
 
@@ -1422,14 +1496,14 @@
                 let icon = '⚡'; let col = 'var(--brand)';
                 if(log.action.includes('Sales') || log.action.includes('Deal') || log.action.includes('Mutated')) { icon = '💼'; col = 'var(--success)'; }
                 else if(log.action.includes('Artist') || log.action.includes('Logistics')) { icon = '🎨'; col = 'var(--artist)'; }
-                else if(log.action.includes('Dispatch') || log.action.includes('Foreman') || log.action.includes('Utos') || log.action.includes('Shift')) { icon = '👷‍♂️'; col = 'var(--info)'; }
+                else if(log.action.includes('Dispatch') || log.action.includes('Foreman') || log.action.includes('Utos') || log.action.includes('Shift') || log.action.includes('Scheduled')) { icon = '👷‍♂️'; col = 'var(--info)'; }
                 else if(log.action.includes('Bundy') || log.action.includes('Punch')) { icon = '⏱️'; col = 'var(--warning)'; }
 
                 feedBody.innerHTML += `
                     <div class="feed-item">
                         <div class="feed-icon" style="color:${col}; border:1px solid ${col};">${icon}</div>
                         <div class="feed-details">
-                            <span style="font-weight:700;">${log.user} <span style="font-weight:400; color:var(--text-muted);">action:</span> ${log.action}</span>
+                            <span style="font-weight:700;">${log.user} <span style="font-weight:400; color:var(--text-muted);">action:</span> <span style="color:var(--text-main);">${log.action}</span></span>
                             <span class="feed-time">Timestamp: ${log.time}</span>
                         </div>
                     </div>`;
@@ -1465,10 +1539,31 @@
         function refreshAdminUI() {
             document.getElementById('dashHeadcount').innerText = db.employees.length; document.getElementById('dashTotalPayroll').innerText = fM(db.payroll.reduce((sum, p) => sum + p.net, 0)); 
             
-            let salesCalculated = db.salesRecords.reduce((sum, s) => sum + parseFloat(s.total || 0), 0);
-            let expensesCalculated = db.purchases.reduce((sum, p) => sum + parseFloat(p.amount || 0), 0);
-            document.getElementById('dashTotalSales').innerText = fM(salesCalculated);
-            document.getElementById('dashTotalExpenses').innerText = fM(expensesCalculated);
+            // FILTER LOGIC FOR SALES & EXPENSES
+            let filter = document.getElementById('dashDataFilter') ? document.getElementById('dashDataFilter').value : 'all';
+            let today = new Date();
+            
+            let fSales = db.salesRecords.filter(s => {
+                if(!s.dateLogged) return true;
+                let sDate = new Date(s.dateLogged);
+                if(filter === 'daily') return sDate.toDateString() === today.toDateString();
+                if(filter === 'monthly') return sDate.getMonth() === today.getMonth() && sDate.getFullYear() === today.getFullYear();
+                if(filter === 'yearly') return sDate.getFullYear() === today.getFullYear();
+                return true;
+            });
+            
+            let fPurchases = db.purchases.filter(p => {
+                if(!p.date) return true;
+                let pDate = new Date(p.date);
+                if(filter === 'daily') return pDate.toDateString() === today.toDateString();
+                if(filter === 'monthly') return pDate.getMonth() === today.getMonth() && pDate.getFullYear() === today.getFullYear();
+                if(filter === 'yearly') return pDate.getFullYear() === today.getFullYear();
+                return true;
+            });
+
+            document.getElementById('dashTotalOrders').innerText = fSales.length;
+            document.getElementById('dashTotalSales').innerText = fM(fSales.reduce((sum, s) => sum + parseFloat(s.total || 0), 0));
+            document.getElementById('dashTotalExpenses').innerText = fM(fPurchases.reduce((sum, p) => sum + parseFloat(p.amount || 0), 0));
 
             const badge = document.getElementById('pendingLeaveBadge'); const pendingLeaves = db.leaves.filter(l => l.status === 'Pending').length; if(pendingLeaves > 0) { badge.style.display = 'block'; badge.innerText = pendingLeaves; } else { badge.style.display = 'none'; }
             let dashRecent = document.getElementById('dashRecentBody'); let periodsRecord = {}; db.payroll.forEach(p => { if(!periodsRecord[p.period]) periodsRecord[p.period] = { count: 0, total: 0 }; periodsRecord[p.period].count++; periodsRecord[p.period].total += p.net; }); dashRecent.innerHTML = ''; let pKeys = Object.keys(periodsRecord).reverse().slice(0, 5); if(pKeys.length === 0) { dashRecent.innerHTML = '<tr><td colspan="3"><div class="empty-state">No transaction logs.</div></td></tr>'; } else { pKeys.forEach(k => { dashRecent.innerHTML += `<tr><td><strong>${k}</strong></td><td>💼 ${periodsRecord[k].count} Processed</td><td class="val-num" style="color:var(--success);">${fM(periodsRecord[k].total)}</td></tr>`; }); }
@@ -1511,6 +1606,23 @@
             let pb = document.getElementById('myPayslipsBody'); pb.innerHTML = ''; const myPayslips = db.payroll.filter(p => p.empId === emp.id).reverse();
             if(myPayslips.length === 0) { pb.innerHTML = `<tr><td colspan="5"><div class="empty-state">Registry empty.</div></td></tr>`; } else { myPayslips.forEach(p => { pb.innerHTML += `<tr><td><strong>${p.period}</strong></td><td class="val-num">${fM(p.gross)}</td><td class="val-num" style="color:var(--danger);">${fM(p.sss+p.phic+p.hdmf+p.tax+p.lates+p.loans+(p.charges||0))}</td><td class="val-num" style="color:var(--brand); font-weight:800; font-size:1.1rem;">${fM(p.net)}</td><td style="text-align:center;"><button class="btn btn-outline" style="padding:4px 10px;" onclick="viewPayslip('${p.id}')">📄 View</button></td></tr>`; }); }
             
+            // POPULATE EMPLOYEE PAYMENT HISTORY FOR LOANS & VALES
+            let lhb = document.getElementById('myLoanHistoryBody');
+            if(lhb) {
+                lhb.innerHTML = '';
+                let myLoans = db.loans.filter(l => l.empId === emp.id);
+                if(myLoans.length === 0) { lhb.innerHTML = `<tr><td colspan="4"><div class="empty-state">No recorded loan history.</div></td></tr>`; }
+                else {
+                    myLoans.forEach(l => {
+                        if(l.history && l.history.length > 0) {
+                            l.history.forEach(h => {
+                                lhb.innerHTML += `<tr><td><strong>${l.type}</strong></td><td class="val-num">${fM(l.amount)}</td><td>${h.date} (${h.period})</td><td class="val-num" style="color:var(--danger); font-weight:bold;">-${fM(h.amount)}</td></tr>`;
+                            });
+                        }
+                    });
+                }
+            }
+
             if(activeNavRole === 'HR' || activeNavRole === 'Admin') renderHrCrmBoard();
             if(activeNavRole === 'Sales' || activeNavRole === 'Admin') renderSalesEmp();
             if(activeNavRole === 'Artist' || activeNavRole === 'Admin') renderArtistBoard();
